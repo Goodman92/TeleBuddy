@@ -1,0 +1,13 @@
+<div class="container-fluid extra-gutter">
+    <div class="row row-eq-height">
+        <div class="col-xs-12 col-sm-6 col-lg-3" *ngFor="let detail of details">
+            <lift [data]="detail"></lift>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12">
+            <customer-table></customer-table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,11 @@
+<ul class="pagination">
+    <li class="previous" (click)="prev()">
+        <a> Edellinen </a>
+    </li>
+    <li *ngFor="let number of numbers;let i=index">
+        <a class="page" [class.active]="number == currentPage" (click)="jumpTo(number)">{{number}}</a>
+    </li>
+    <li class="next" (click)="next()">
+        <a> Seuraava </a>
+    </li>
+</ul>

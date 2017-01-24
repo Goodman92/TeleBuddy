@@ -1,0 +1,6 @@
+<select class="form-control input-full" (change)="onChange($event.target.value)">
+    <option> Kaikki </option>
+    <option *ngFor="let element of collection">
+        {{element.name ? element.name : element.city}}
+    </option>
+</select>

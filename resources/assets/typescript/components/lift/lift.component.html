@@ -1,0 +1,10 @@
+<div class="lift-box">
+    <div class="lift-title">
+        <h4> {{data.title}} </h4>
+    </div>
+    <div class="lift-body">
+        <h3> {{data.data}} </h3>
+        <h5 *ngIf="isNumber()"> Yhteensä </h5>
+        <h5 *ngIf="!isNumber()"> Viimeksi </h5>
+    </div>
+</div>

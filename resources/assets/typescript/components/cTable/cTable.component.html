@@ -1,0 +1,118 @@
+<div class="customer-table extra-gutter">
+    <div class="row table-header">
+        <div class="col-xs-12">
+            <h4> Yritykset </h4>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-lg-1">
+            <label for="sel1">Yritysmuodot</label>
+        </div>
+        <div class="col-xs-6 col-lg-1" *ngFor="let forms of companyForms">
+            <div class="checkbox">
+                <label><input type="checkbox" (click)="addCompanyform(forms)">{{forms.name}}</label>
+            </div>
+        </div>
+        <div class="col-xs-6 col-lg-1">
+            <div class="checkbox">
+                <label><input type="checkbox" checked="checked">Kaikki</label>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6 col-xs-12">
+            <div class="row">
+                <div class="col-lg-2 col-xs-12">
+                    <label for="sel1" (click)="addLine()">Toimiala </label>
+                </div>
+                <div class="col-lg-10 col-xs-12">
+                    <dropdown [collection]="businessLines" (collectionUpdated)="linesUpdated($event)"></dropdown>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <span *ngFor="let line of addedLines" class="badge" (click)="removeElement(line, addedLines)">
+                        {{line.name}}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6 col-xs-12">
+            <div class="row">
+                <div class="col-lg-2 col-xs-12">
+                    <label for="sel1">Kaupunki</label>
+                </div>
+                <div class="col-lg-10 col-xs-12">
+                    <dropdown [collection]="cities" (collectionUpdated)="citiesUpdated($event)"></dropdown>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-xs-12">
+                    <span *ngFor="let city of addedCities" class="badge" (click)="removeElement(city, addedCities)">
+                        {{city.city}}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <div class="form-group">
+                <label for="sel1">Näytä</label>
+                <select class="form-control" id="sel1" (change)="onChange($event)">
+                    <option>10</option>
+                    <option selected="selected">25</option>
+                    <option>50</option>
+                    <option>100</option>
+                </select>
+                <label> tulosta </label>
+            </div>
+        </div>
+
+        <div class="col-xs-12 col-sm-6 right-align">
+            <button type="button" class="btn btn-tlp" (click)="fetchResults()"><i class="fa fa-refresh" aria-hidden="true"></i>Päivitä</button>
+            <button type="button" class="btn btn-tlp" (click)="generateList()"><i class="fa fa-users" aria-hidden="true"></i>Generoi lista</button>
+        </div>
+    </div>
+
+    <div class="table-content table-responsive table-bordered">
+        <div class="loader" *ngIf="shownPages > collectionSize || loading"></div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th> Nimi</th>
+                    <th> Y-tunnus</th>
+                    <th> Yritysmuoto</th>
+                    <th> Toimiala </th>
+                    <th> Puhelin </th>
+                    <th> Kaupunki </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let company of companies; let i=index">
+                    <template [ngIf]="i<limiter + shownPages && i >= shownPages">
+                        <td> {{company.name}} </td>
+                        <td> {{company.businessId}} </td>
+                        <td> {{company.companyForm}} </td>
+                        <td> {{company.businesslines.name}}</td>
+                        <td> {{company.contact_details.matkapuhelin ? company.contact_details.matkapuhelin : company.contact_details.puhelin}}</td>
+                        <td> {{company.city}} </td>
+                    </template>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="row row-eq-height">
+        <div class="col-xs-12 col-sm-6">
+            <h5> Näytetään {{currentPosition - limiter}} - {{currentPosition}} / {{size}} </h5>
+        </div>
+
+        <div class="col-xs-12 right-align">
+            <pagination [count]="count" [size]="size" [perPage]="limiter" (pageChanged)="pageChanged($event)"></pagination>
+        </div>
+    </div>
+
+</div>
