@@ -13,7 +13,7 @@ export class SideBarComponent {
 	@ViewChildren('label') labelRef:QueryList<any>;
 
 	constructor(private sharedService: SharedService) {
-		//fixiä mby
+		//tää ei oo hyvä
     	this.sharedService.missionAnnounced$.subscribe( () => {
 			this.labelRef.forEach( (item, index, array) => {
 				let displayType = item.nativeElement.style.display;
