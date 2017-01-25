@@ -1,6 +1,6 @@
 
 <h2>Laravel 5.3 and Angular 2 powered app, work still in progress </h2>
-<p> Other technologies: vagrant, sass, elixir(gulp), eloquent(ORM), mysql, bootstrap(responsive) and webpack </p>
+<p> Other technologies: vagrant, sass, elixir(gulp), eloquent(ORM), mysql, bootstrap(responsive), ES6/TypeScript and webpack </p>
 <p> Frontend files, components, services & models can be found from /resources/assets/typescript </p>
 <p> Backend files, controllers, models & migrations can be found under app/ -folder </p>
 <p> Sass is currently in one file(problems with gulp), it can be found under /resources/assets/sass folder </p>
