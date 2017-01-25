@@ -60,6 +60,7 @@ class CustomerController extends Controller {
 		return response()->json($result, 200);
 	}
 
+	// optimointi, testi atm
 	public function getCustomCompanies(Request $request, $floor = null, $ceil = null) {
 		Log::debug("getCustomCompanies");
 		$parameters = $request->only('lines_', 'cities_', 'forms_');
@@ -67,7 +68,7 @@ class CustomerController extends Controller {
 		$companies = Company::with('contactDetails')
 							->with('businesslines')
 							->has('contactDetails')
-							->Where(function($query) use($parameters) {
+		->Where(function($query) use($parameters) {
 			for($i = 0; $i < count($parameters['forms_']); $i++) {
 				if($parameters['forms_'][$i]['checked'] == true)
 					$query->orWhere('companyForm', $parameters['forms_'][$i]['name']);
@@ -88,7 +89,7 @@ class CustomerController extends Controller {
 		$count = Company::with('contactDetails')
 							->with('businesslines')
 							->has('contactDetails')
-							->Where(function($query) use($parameters) {
+		->Where(function($query) use($parameters) {
 			for($i = 0; $i < count($parameters['forms_']); $i++) {
 				if($parameters['forms_'][$i]['checked'] == true)
 					$query->orWhere('companyForm', $parameters['forms_'][$i]['name']);
