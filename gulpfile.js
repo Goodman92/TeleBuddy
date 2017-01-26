@@ -78,12 +78,14 @@ elixir(function(mix) {
         'js/all.js',
         'css/all.css'
     ]);
-    
+    // totaa?
     mix.scripts([
-        'vendor.js',
-        'app.js'
-    ], 'public/js/all.js', 'public/js');
-    
+        'public/js/vendor.js',
+        'public/js/app.js',
+        'node_modules/jquery/dist/jquery.min.js',
+        'node_modules/bootstrap/dist/js/bootstrap.min.js'
+    ], 'public/js','./');
+    //    ], 'public/js/all.js', 'public/js','./');
     mix.styles([
         'css/app.css',
     ], 'public/css/all.css', 'public/css');
