@@ -9,16 +9,15 @@ class CreateContactdetailsTable extends Migration
 
     public function up()
     {
-        Schema::create('contact-details', function (Blueprint $table) {
+        Schema::create('contact_details', function (Blueprint $table) {
             $table->increments('id');
             $table->string('puhelin')->nullable();
             $table->string('matkapuhelin')->nullable();
-            $table->string('www')->nullable();
         });
     }
 
     public function down()
     {
-        Schema::dropIfExists('contact-details');
+        Schema::dropIfExists('contact_details');
     }
 }

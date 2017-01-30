@@ -10,6 +10,7 @@ class CreateCompaniesTable extends Migration
     public function up()
     {
         Schema::create('companies', function (Blueprint $table) {
+            $table->increments('id');
             $table->string('name');
             $table->string('businessId');
             $table->date('registrationDate')->nullable();
@@ -22,11 +23,12 @@ class CreateCompaniesTable extends Migration
             $table->string('liquidations')->nullable();
 
             $table->integer('businessLine')->unsigned()->nullable();
-            $table->foreign('businessLine')->references('id')->on('businesslines')->onUpdate('cascade')->onDelete('set null')->nullable();
+            $table->foreign('businessLine')->references('id')->on('business_lines')->onUpdate('cascade')->onDelete('set null')->nullable();
 
             $table->integer('contactDetails')->unsigned()->nullable();
-            $table->foreign('contactDetails')->references('id')->on('contact-details')->onUpdate('cascade')->onDelete('set null')->nullable();
-            $table->primary('businessId');
+            $table->foreign('contactDetails')->references('id')->on('contact_details')->onUpdate('cascade')->onDelete('set null')->nullable();
+
+            $table->timestamps();
         });
     }
 

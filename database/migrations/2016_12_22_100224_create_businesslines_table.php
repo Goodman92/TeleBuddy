@@ -8,7 +8,7 @@ class CreateBusinesslinesTable extends Migration
 {
     public function up()
     {
-        Schema::create('businesslines', function (Blueprint $table) {
+        Schema::create('business_lines', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
         });

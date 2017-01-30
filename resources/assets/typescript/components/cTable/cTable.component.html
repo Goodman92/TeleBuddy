@@ -51,7 +51,7 @@
             <div class="row">
                 <div class="col-xs-12">
                     <span *ngFor="let city of addedCities" class="badge" (click)="removeElement(city, addedCities)">
-                        {{city.city}}
+                        {{city}}
                     </span>
                 </div>
             </div>
@@ -130,10 +130,27 @@
                                 <label class="col-lg-4" for="sel1">Listan koko</label>
                                 <div class="col-lg-8">
                                     <select class="form-control" id="sel1">
-                                    <option selected="selected">50</option>
+                                    <option selected="selected" #sizeSelect>25</option>
+                                    <option>50</option>
                                     <option>100</option>
                                     <option>200</option>
-                                    <option>500</option>
+                                </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="col-lg-4" for="sel1">Näkyvyydet</label>
+                                <div class="col-lg-8">
+                                    <select class="form-control" id="sel1" #visibilitiesSelect>
+                                    <option selected="selected"></option>
+                                    <option>1</option>
+                                    <option>2</option>
+                                    <option>3</option>
+                                    <option>4</option>
+                                    <option>5</option>
                                 </select>
                                 </div>
                             </div>
@@ -176,26 +193,18 @@
                         </div>
                     </div>
 
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <div class="form-group form-inline">
-                                <label for="exampleInputEmail1" class="col-lg-4">Sposti</label>
-                                <div class="col-lg-8">
-                                    <input type="email" class="form-control" id="exampleInputEmail1" placeholder="Email">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Generoi</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" (click)="generateList()">
+                        Tulosta
+                        </button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Sulje</button>
                 </div>
             </div>
 
         </div>
     </div>
+    <iframe id="secretIFrame" src="test3.xml" style="display:none; visibility:hidden;"></iframe>
+
 
 </div>

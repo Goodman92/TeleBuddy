@@ -1,8 +1,12 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
 import { HttpService } from "../../services/http/http.service";
 import { Http, Headers, Response, RequestOptions } from "@angular/http";
 import { Observable } from "Rxjs";
 import { CustomCompanyModel } from "../../interfaces/basemodel.interface";
+import { ListModel } from "../../interfaces/basemodel.interface";
+
+// ei es6 toteutusta
+import fileSaver = require("file-saver");
 
 @Component({
   'selector': 'customer-table',
@@ -10,10 +14,12 @@ import { CustomCompanyModel } from "../../interfaces/basemodel.interface";
 })
 
 export class CustomerTable {
+  @ViewChild('visibilitiesSelect') visibilitiesRef: ElementRef;
+  @ViewChild('sizeSelect') sizeRef: ElementRef;
   public businessLines: Array<string>;
   private companyForms: Array<any>;
   public cities: Array<string>;
-  public addedLines: Array<string>;
+  public addedLines: Array<any>;
   public addedCities: Array<string>;
   public addedForms: Array<any>;
   private companies: Array<any> = new Array();
@@ -38,8 +44,10 @@ export class CustomerTable {
   public left: number = 0;
   private ceil: number = 0;
 
+  private uri: string = " ";
+
   constructor(private httpService: HttpService) {
-    // roskaa  fixi ä
+    // roskaa  fixiä
     Observable.forkJoin(
       this.httpService.get('api/customers/cities'),
       this.httpService.get('api/customers/lines'),
@@ -53,6 +61,7 @@ export class CustomerTable {
       for (let i = 0; i < result[1].lines.length; i++) {
         this.businessLines.push(result[1].lines[i]);
       }
+      console.log(this.businessLines);
       this.companies = result[2].companies;
       this.size = result[2].active;
       this.loading = false;
@@ -74,7 +83,7 @@ export class CustomerTable {
   private getData(lowerbound: number, upperbound: number) {
     if (this.parameterFlag)
       return this.httpService
-        .post('/api/customers/custom/' + lowerbound + '/' + upperbound, new CustomCompanyModel(this.addedLines, this.addedCities, this.companyForms))
+        .post('/api/customers/custom/' + lowerbound + '/' + upperbound, new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, this.addedForms))
     return this.httpService
       .get('api/customers/clients/' + lowerbound + '/' + upperbound);
   }
@@ -92,7 +101,7 @@ export class CustomerTable {
       this.addedLines = [];
     }
     else {
-      let element = this.businessLines.find((obj: any) => {
+      let element: any = this.businessLines.find((obj: any) => {
         return obj.name == val;
       });
       this.addedLines.push(element);
@@ -104,10 +113,10 @@ export class CustomerTable {
       this.addedCities = [];
     }
     else {
-      let element = this.cities.find((obj: any) => {
+      let element: any = this.cities.find((obj: any) => {
         return obj.city == val;
       });
-      this.addedCities.push(element);
+      this.addedCities.push(element.city);
     }
   }
 
@@ -115,7 +124,7 @@ export class CustomerTable {
     this.limiter = parseInt(value.target.value);
   }
 
-  // pagination ajax, haetaan kerralla max 1500 tulosta kannasta. konffit ylhäällä.
+  // pagination ajax, haetaan kerralla max 1500 tulosta kannasta. konffit ylhäällä .
   public pageChanged(value) {
     console.log(value);
     value = parseInt(value);
@@ -175,14 +184,13 @@ export class CustomerTable {
   public fetchResults() {
     this.parameterFlag = true;
     this.loading = true;
-    console.log(this.addedLines);
-    console.log(this.addedCities);
-    //vixi
-    if (this.addedLines.length == 0 && this.addedCities.length == 0 && !this.companyFormSpecified())
+    this.companyFormSpecified();
+    
+    if (this.addedLines.length == 0 && this.addedCities.length == 0 && this.addedForms.length == 0)
       this.parameterFlag = false;
 
     this.httpService
-      .post('/api/customers/custom/0/1500', new CustomCompanyModel(this.addedLines, this.addedCities, this.companyForms))
+      .post('/api/customers/custom/0/1500', new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, this.addedForms))
       .subscribe((result) => {
         if (result.companies) {
           this.companies = result.companies;
@@ -198,14 +206,34 @@ export class CustomerTable {
   }
 
   private companyFormSpecified() {
+    this.addedForms = [ ];
     for (let i = 0; i < this.companyForms.length; i++) {
-      if (this.companyForms[i].checked)
-        return true;
+      if (this.companyForms[i].checked && this.companyForms[i].name != 'Kaikki')
+        this.addedForms.push(this.companyForms[i].name);
     }
-    return false;
   }
 
   public generateList() {
-    
+
+    let visibilities = this.visibilitiesRef.nativeElement.value;
+    let size = this.sizeRef.nativeElement.value;
+    this.companyFormSpecified();
+    this.httpService
+      .post('/api/customers/generate', new ListModel(size, visibilities, this.getCorrespondingLineIds(), this.addedCities, this.addedForms))
+      .subscribe((result) => {
+        /*
+        let blob = new Blob([result._body], { type: 'text/xml'});
+        let url = window.URL.createObjectURL(blob);
+        fileSaver.saveAs(blob, 'Yrityslistaus.xml');
+        */
+      });
+  }
+
+  private getCorrespondingLineIds() {
+    let ids: Array<number> = new Array();
+    for(let i = 0; i < this.addedLines.length; i++) {
+        ids.push(this.addedLines[i].id);
+    }
+    return ids;
   }
 } 

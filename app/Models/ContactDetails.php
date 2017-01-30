@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ContactDetails extends Model
 {
-    protected $table = 'contact-details';
+    protected $table = 'contact_details';
     public $timestamps = false;
 
     public function company() {

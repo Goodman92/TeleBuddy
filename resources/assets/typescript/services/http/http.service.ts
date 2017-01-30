@@ -13,7 +13,14 @@ export class HttpService {
         return this.http
             .get(url, options)
             .map((response: Response) => {
-                return response.json()
+               try {
+                    return response.json();
+                }
+                catch(err) {
+                    console.log(err);
+                    console.log("error");
+                    return response;
+                }
             });
     }
 
@@ -24,7 +31,17 @@ export class HttpService {
         headers.append('Content-Type', 'application/json');
         return this.http
             .post(url, payLoad.stringify(), { headers })
-            .map(res => res.json())
+            .map((res) => {
+                console.log(res);
+                try {
+                    return res.json();
+                }
+                catch(err) {
+                    console.log(err);
+                    console.log("error");
+                    return res;
+                }
+            });
     }
 
     public getAuthToken() {

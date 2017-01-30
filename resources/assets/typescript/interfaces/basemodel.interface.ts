@@ -24,15 +24,16 @@ export class LoginModel implements BaseModel {
 
 export class CustomCompanyModel implements BaseModel {
 
-    private lines: Array<any>;
-    private cities: Array<any>;
-    private forms: Array<any>;
+    protected lines: Array<any>;
+    protected cities: Array<any>;
+    protected forms: Array<any>;
 
     constructor(lines_?: Array<any>, cities_?: Array<any>, forms_?: Array<any>) {
         this.lines = lines_;
         this.cities = cities_;
         this.forms = forms_;
     }
+
     public stringify() {
         let lines_ = this.lines;
         let cities_ = this.cities;
@@ -48,4 +49,27 @@ export class LiftModel {
         this.title = title_;
         this.data = data_;
     }
+}
+
+export class ListModel extends CustomCompanyModel implements BaseModel {
+
+    private listSize: number;
+    private visibilities: number;
+
+    constructor(listSize_: number, visibilities_?: number, lines_?: Array<any>, cities_?: Array<any>, forms_?: Array<any>) {
+        super(lines_, cities_, forms_);
+        this.listSize = listSize_;
+        this.visibilities = visibilities_;
+    }
+
+    public stringify() {
+        let lines = this.lines;
+        let cities = this.cities;
+        let forms = this.forms;
+        let listSize = this.listSize;
+        let visibilities = this.visibilities;
+        console.log(cities);
+        return JSON.stringify({listSize, visibilities, lines, cities, forms});
+    }
+
 }

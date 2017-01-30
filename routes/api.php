@@ -27,3 +27,4 @@ Route::get('/customers/cities', 'API\CustomerController@getCities');
 Route::get('/customers/lines', 'API\CustomerController@getLines');
 Route::get('/customers/details', 'API\CustomerController@getDetails');
 Route::post('/customers/custom/{floor?}/{ceil?}', 'API\CustomerController@getCustomCompanies');
+Route::post('/customers/generate', 'API\CustomerController@getList');
