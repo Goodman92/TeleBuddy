@@ -14,6 +14,7 @@
 
 	use \App\Models\Company;
 	use \App\Models\BusinessLines;
+	use \App\Http\Controllers\Api\Utility\ExcelParser;
 
 
 	class CustomerController extends Controller {
@@ -113,73 +114,50 @@
 		}
 
 		public function getList(Request $request) {
-			Log::debug("tehää lista");
 			$parameters = $request->only('listSize', 'visibilities', 'lines', 'cities', 'forms');
 			$size = $parameters['listSize'];
-
-			Log::debug($parameters);
+			$visibilities = empty($parameters['visibilities']) ? 2 : $parameters['visibilities'];
 
 			$companies = Company::with('contactDetails')
 								->with('businesslines')
+								->with('visibilities')
 								->has('contactDetails');
 
 			$companies = $this->customWhereInEmpty($companies, $parameters['forms'], 'companyForm');
 			$companies = $this->customWhereInEmpty($companies, $parameters['cities'], 'city');
 			$companies = $this->customWhereInEmpty($companies, $parameters['lines'], 'businessLine');
-			$companies = $companies->limit($size)->get();
+			$companies = $companies->has('visibilities', '>=', $visibilities)
+									->limit($size)->get();
+
+			//aseta jäähylle
+
+			/* VAIHTOEHTOINEN JOINILLA
+			$companies = $companies->leftJoin('company_visibility', 'companies.id', '=', 'company_visibility.company_id')
+			->groupBy('company_visibility.company_id')
+			->havingRaw('COUNT(company_visibility.company_id) > '.$visibilities)->limit($size)->get();
+			*/
+			
+			$xml = $this->generateExcelFile($companies->toArray());
+
+			$result = array(
+				'data' => $xml
+			);
+			return response()->json($result, 200);
 
 
-
-			Log::debug($companies);
-
-			$this->generateExcelFile();
-
-
-/*
-			$response = Response::make($xml->asXML(), 200);
-
-			$response->header('Cache-Control', 'public');
-			$response->header('Content-Description', 'File Transfer');
-			$response->header('Content-Transfer-Encoding', 'binary');
-			//$response->header('Content-Type', 'application/pdf');
-			//$response->header('Content-Type', 'text/xml');
-			$response->header('Content-Type', 'application/force-download');
-			//$response->header('Content-Type', 'application/octet-stream');
-			//$response->header('Content-Type', 'application/download');
-			$response->header('Content-Disposition', 'attachment; filename=test3.xml');
-
-			Log::debug("lista valmis?");
-*/			return null;
 		}
 
-		private function generateExcelFile() {
+		private function generateExcelFile($rows) {
 
-			$configuration = array("Nimi", "Y-tunnus", "Toimiala", "Kaupunki", "Puhelin", "Matkapuhelin", "Näkyvyydet");
+			//MOCK 
+			$configuration = array("name" => "Nimi", "businessId" => "Y-tunnus", "businesslines" => array("name" => "Toimiala"), "city" => "Kaupunki", "contact_details" => array("matkapuhelin" => "matkapuhelin", "puhelin" => "puhelin"), "visibilities" => array(array("name")));
 
-			$excelXML = new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?>
-													<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
-															 xmlns:x="urn:schemas-microsoft-com:office:excel"
-															 xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"
-															 xmlns:html="http://www.w3.org/TR/REC-html40"></Workbook>');
-			$workSheet = $excelXML->addChild('Worksheet');
-			$workSheet->addAttribute("xmlns:ss:Name", 'Yrityslistaus');
-			$table = $workSheet->addChild('Table');
-			$column = $table->addChild('Column');
-
-			$column->addAttribute("xmlns:ss:Index", '1');
-			$column->addAttribute("xmlns:ss:AutoFitWidth", '0');
-			$column->addAttribute("xmlns:ss:Width", '110');
-
-			$row = $table->addChild('Row');
-			
-			foreach($configuration as $element) {
-				$cell = $row->addChild('Cell');
-				$data = $cell->addChild('Data', $element);
-				$data->addAttribute("xmlns:ss:Type", "String");
-			}
+			$excelParser = new ExcelParser($configuration, $rows);
 
 			$file= public_path(). "/tlp.xml";
-			$excelXML->saveXML('tlp.xml');
+			$excelParser->getExcelXML()->saveXML('tlp.xml');
+
+			return $excelParser->getExcelXML()->asXML();
 
 		}
 
@@ -188,5 +166,6 @@
 				$eloquent = $eloquent->whereIn($needle, $haystack);
 			return $eloquent;
 		}
+
 
 	}

@@ -8,12 +8,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class DropdownComponent {
     @Input('collection') collection: any;
     @Output() collectionUpdated = new EventEmitter();
-    private modifiedCollection: Array<string>;
-
-
-    constructor() {
-        this.modifiedCollection = [];
-    }
+    private modifiedCollection: Array<string> = new Array<string>();
 
     public onChange(value: string): void {
         if (value == "Kaikki") {
@@ -28,8 +23,4 @@ export class DropdownComponent {
         }
     }
 
-    ngOnInit() {
-        console.log("dropdown");
-        console.log(this.collection);
-    }
 }

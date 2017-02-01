@@ -1,27 +1,28 @@
 import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
-import { HttpService } from "../../services/http/http.service";
+import { HttpService } from "../../../services/http/http.service";
 import { Http, Headers, Response, RequestOptions } from "@angular/http";
 import { Observable } from "Rxjs";
-import { CustomCompanyModel } from "../../interfaces/basemodel.interface";
-import { ListModel } from "../../interfaces/basemodel.interface";
+import { CustomCompanyModel } from "../../../interfaces/basemodel.interface";
+import { ListModel } from "../../../interfaces/basemodel.interface";
 
 // ei es6 toteutusta
 import fileSaver = require("file-saver");
 
 @Component({
   'selector': 'customer-table',
-  'template': require('./cTable.component.html')
+  'template': require('./home-main.component.html')
 })
 
 export class CustomerTable {
   @ViewChild('visibilitiesSelect') visibilitiesRef: ElementRef;
   @ViewChild('sizeSelect') sizeRef: ElementRef;
-  public businessLines: Array<string>;
-  private companyForms: Array<any>;
-  public cities: Array<string>;
-  public addedLines: Array<any>;
-  public addedCities: Array<string>;
-  public addedForms: Array<any>;
+
+  public businessLines: Array<string> = new Array();
+  private companyForms: Array<any> = new Array();
+  public cities: Array<string> = new Array();
+  public addedLines: Array<any> = new Array();
+  public addedCities: Array<string> = new Array();
+  public addedForms: Array<any> = new Array();
   private companies: Array<any> = new Array();
   public shownPages: number = 0;
   public loading: boolean = true;
@@ -44,7 +45,7 @@ export class CustomerTable {
   public left: number = 0;
   private ceil: number = 0;
 
-  private uri: string = " ";
+  private defaultSelector: string = "Kaikki";
 
   constructor(private httpService: HttpService) {
     // roskaa  fixiä
@@ -53,23 +54,18 @@ export class CustomerTable {
       this.httpService.get('api/customers/lines'),
       this.httpService.get('api/customers/clients/' + this.reserve + '/' + this.collectionSize)
     ).subscribe((result) => {
-      this.businessLines = new Array();
-      this.cities = new Array();
-      for (let i = 0; i < result[0].cities.length; i++) {
-        this.cities.push(result[0].cities[i]);
+
+      for(let entry of result[0].cities) {
+          this.cities.push(entry);
       }
-      for (let i = 0; i < result[1].lines.length; i++) {
-        this.businessLines.push(result[1].lines[i]);
+      for(let entry of result[1].lines) {
+          this.businessLines.push(entry);
       }
-      console.log(this.businessLines);
+
       this.companies = result[2].companies;
       this.size = result[2].active;
       this.loading = false;
     });
-
-    this.addedLines = [];
-    this.addedCities = [];
-    this.addedForms = [];
 
     this.companyForms = [
       { name: "AOY", checked: false },
@@ -97,7 +93,7 @@ export class CustomerTable {
   }
 
   public linesUpdated(val) {
-    if (val == 'Kaikki') {
+    if (val == this.defaultSelector) {
       this.addedLines = [];
     }
     else {
@@ -109,7 +105,7 @@ export class CustomerTable {
   }
 
   public citiesUpdated(val) {
-    if (val == 'Kaikki') {
+    if (val == this.defaultSelector) {
       this.addedCities = [];
     }
     else {
@@ -208,7 +204,7 @@ export class CustomerTable {
   private companyFormSpecified() {
     this.addedForms = [ ];
     for (let i = 0; i < this.companyForms.length; i++) {
-      if (this.companyForms[i].checked && this.companyForms[i].name != 'Kaikki')
+      if (this.companyForms[i].checked && this.companyForms[i].name != this.defaultSelector)
         this.addedForms.push(this.companyForms[i].name);
     }
   }

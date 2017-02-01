@@ -1,8 +1,8 @@
 import { Component, Inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { FileUploadService } from '../../services/file-upload/file-upload.service';
-import { HttpService } from "../../services/http/http.service";
-import { LiftModel } from "../../interfaces/basemodel.interface";
+import { FileUploadService } from '../../../services/file-upload/file-upload.service';
+import { HttpService } from "../../../services/http/http.service";
+import { LiftModel } from "../../../interfaces/basemodel.interface";
 
 
 @Component({
@@ -20,7 +20,6 @@ export class HomeComponent {
                     new LiftModel('Toimialoja', result.lines),
                     new LiftModel('Asiakkaat', result.customers),
                     new LiftModel('Päivitetty', result.updated));
-                console.log(this.details);
             }
         });
     }

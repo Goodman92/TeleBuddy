@@ -3,24 +3,27 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-
 import { routes } from './app.routing';
 
+//Components
 import { AppComponent } from './app.component';
-import { PageNotFoundComponent } from "./components/page-not-found/page-not-found.component";
-import { HomeComponent } from "./components/home/home.component";
-import { ProgressBar } from "./components/ui/progress-bar/progress-bar.component";
-import { HeaderComponent } from "./components/header/header.component";
-import { SideBarComponent } from "./components/sidebar/sidebar.component";
-import { FileUploadService } from "./services/file-upload/file-upload.service";
-import { LiftComponent } from "./components/lift/lift.component";
-import { CustomerTable } from "./components/cTable/cTable.component";
-import { LoginComponent } from "./components/login/login.component";
-import { DropdownComponent } from "./components/dropdown/dropdown.component";
+import { PageNotFoundComponent } from "./components/General/page-not-found/page-not-found.component";
+import { HomeComponent } from "./components/Homepage/home/home.component";
+import { ProgressBar } from "./components/General/ui/progress-bar/progress-bar.component";
+import { HeaderComponent } from "./components/General/header/header.component";
+import { SideBarComponent } from "./components/General/sidebar/sidebar.component";
+import { LiftComponent } from "./components/Homepage/lift/lift.component";
+import { CustomerTable } from "./components/Homepage/home-maincomponent/home-main.component";
+import { LoginComponent } from "./components/Loginpage/login/login.component";
+import { DropdownComponent } from "./components/Homepage/dropdown/dropdown.component";
+import { PaginationComponent } from "./components/General/pagination/pagination.component";
+
+//Services 
 import { AuthService } from "./services/auth/auth.service";
 import { HttpService } from "./services/http/http.service";
+import { FileUploadService } from "./services/file-upload/file-upload.service";
 import { LoginGuard, NotLoggedGuard } from "./services/login-guard/login-guard.service";
-import { PaginationComponent } from "./components/pagination/pagination.component";
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -50,8 +53,8 @@ import { PaginationComponent } from "./components/pagination/pagination.componen
         NotLoggedGuard,
         HttpService
     ],
-    bootstrap:[
+    bootstrap: [
         AppComponent
     ]
 })
-export class AppModule {}
+export class AppModule { }

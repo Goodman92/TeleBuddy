@@ -1,5 +1,5 @@
 import { Component, Inject, Input } from '@angular/core';
-import { LiftModel } from "../../interfaces/basemodel.interface";
+import { LiftModel } from "../../../interfaces/basemodel.interface";
 
 @Component({
     'selector': 'lift',

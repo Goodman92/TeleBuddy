@@ -1,7 +1,7 @@
 import { Component, ReflectiveInjector, ViewChild, ElementRef } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SharedService } from '../../services/sharedservice/shared.service';
-import { AuthService } from '../../services/auth/auth.service';
+import { SharedService } from '../../../services/sharedservice/shared.service';
+import { AuthService } from '../../../services/auth/auth.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -12,8 +12,7 @@ import { Router } from '@angular/router';
 
 export class HeaderComponent {
   @ViewChild('header') el:ElementRef
-  constructor(private sharedService: SharedService, private authService: AuthService, private router: Router) {
-  }
+  constructor(private sharedService: SharedService, private authService: AuthService, private router: Router) { }
 
   toggleSideBar(): void {
   	this.sharedService.announceMission();

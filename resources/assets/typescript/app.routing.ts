@@ -1,7 +1,7 @@
 import { Routes, RouterModule } from '@angular/router';
-import { PageNotFoundComponent } from "./components/page-not-found/page-not-found.component";
-import { HomeComponent } from "./components/home/home.component";
-import { LoginComponent } from "./components/login/login.component";
+import { PageNotFoundComponent } from "./components/General/page-not-found/page-not-found.component";
+import { HomeComponent } from "./components/Homepage/home/home.component";
+import { LoginComponent } from "./components/Loginpage/login/login.component";
 import { LoginGuard, NotLoggedGuard } from './services/login-guard/login-guard.service';
 export const routes: Routes = [
     {

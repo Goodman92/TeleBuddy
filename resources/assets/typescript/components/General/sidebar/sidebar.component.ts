@@ -1,6 +1,6 @@
 import { Component, ReflectiveInjector, ViewChild, ElementRef, ViewChildren, QueryList } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { SharedService } from '../../services/sharedservice/shared.service';
+import { SharedService } from '../../../services/sharedservice/shared.service';
 
 @Component({
   selector: 'side-bar',
