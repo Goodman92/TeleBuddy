@@ -1,0 +1,84 @@
+<div class="container-fluid extra-gutter">
+	<div class="row">
+		<div class="col-xs-12">
+			<div class="lift-box">
+				<h2 class="color-navy"> Asiakkaat </h2>
+				<p>
+					<i class="fa fa-info-circle" aria-hidden="true"></i> Selaa tämän hetkisiä asiakkaita ja lisää niitä järjestelmään yritystunnuksen
+					avulla. Asiakkailla on neljän kuukauden karenssi, jonka jälkeen nämä lisätään uudestaan järjestelmään. Voit myös poistaa asiakkaita manuaalisesti.</p>
+			</div>
+		</div>
+	</div>
+
+	<div class="customer-table extra-gutter">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="add-box">
+					<div class="add-box-heading">
+						<h4> Lisää asiakas </h4>
+						<a href="#">
+							<i class="fa fa-chevron-up pull-right" (click)="showForm()" [ngClass]="{ 'fa-chevron-up' : trigger, 'fa-chevron-down': !trigger }"></i>
+						</a>
+					</div>
+					<div class="add-box-body" [ngClass]="{ 'hide': trigger}">
+						<label for="sel1">Yritystunnus </label>
+						<input type="text" class="form-control" (keyup)="onKey($event)">
+						<button class="btn btn-tlp" type="button" (click)="addClient()">Lisää</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+
+	<div class="customer-table extra-gutter">
+		<div class="row table-header">
+			<div class="col-xs-12">
+				<h4> Asiakkaat </h4>
+			</div>
+		</div>
+
+		<div class="table-content table-responsive table-bordered">
+			<table class="table">
+				<thead>
+					<tr>
+						<th> # </th>
+						<th> Nimi</th>
+						<th> Y-tunnus</th>
+						<th> Yritysmuoto</th>
+						<th> Toimiala </th>
+						<th> Puhelin </th>
+						<th> Kaupunki </th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr *ngFor="let company of companies; let i=index">
+						<template [ngIf]="i<limiter + shownPages && i >= shownPages">
+							<td>
+								<a href="#" (click)="removeClient(i)">
+									<i class="fa fa-times" aria-hidden="true"></i>
+								</a>
+							</td>
+							<td> {{company.name}} </td>
+							<td> {{company.businessId}} </td>
+							<td> {{company.companyForm}} </td>
+							<td> {{company.businesslines.name}}</td>
+							<td> {{company.contact_details.matkapuhelin}}</td>
+							<td> {{company.city}} </td>
+						</template>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+		
+		<div class="row row-eq-height">
+			<div class="col-xs-6">
+				<button type="button" class="btn btn-tlp color-red" (click)="confirmDelete()" *ngIf="deletedClients.length > 0">
+					<i class="fa fa-check-square-o" aria-hidden="true"></i> Vahvista poistot </button>
+			</div>
+			<div class="col-xs-6 right-align">
+				<pagination [count]="count" [size]="size" [perPage]="limiter" (pageChanged)="pageChanged($event)"></pagination>
+			</div>
+		</div>
+	</div>
+</div>

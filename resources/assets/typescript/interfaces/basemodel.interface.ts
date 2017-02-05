@@ -26,19 +26,31 @@ export class CustomCompanyModel implements BaseModel {
 
     protected lines: Array<any>;
     protected cities: Array<any>;
-    protected forms: Array<any>;
+    protected registrationFrom: string;
 
-    constructor(lines_?: Array<any>, cities_?: Array<any>, forms_?: Array<any>) {
+    constructor(lines_?: Array<any>, cities_?: Array<any>, forms_?: string) {
         this.lines = lines_;
         this.cities = cities_;
-        this.forms = forms_;
+        this.registrationFrom = forms_;
     }
 
     public stringify() {
         let lines_ = this.lines;
         let cities_ = this.cities;
-        let forms_ = this.forms;
+        let forms_ = this.registrationFrom;
         return JSON.stringify({lines_, cities_, forms_});
+    }
+}
+
+export class ClientModel implements BaseModel {
+    private clients: Array<any>;
+    constructor(clients_) {
+        this.clients = clients_;
+    }
+
+    public stringify() {
+        let clients = this.clients;
+        return JSON.stringify({clients});
     }
 }
 
@@ -50,6 +62,7 @@ export class LiftModel {
         this.data = data_;
     }
 }
+
 
 export class ListModel extends CustomCompanyModel implements BaseModel {
 

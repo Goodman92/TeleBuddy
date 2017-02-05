@@ -6,22 +6,6 @@
     </div>
 
     <div class="row">
-        <div class="col-xs-12 col-lg-1">
-            <label for="sel1">Yritysmuodot</label>
-        </div>
-        <div class="col-xs-6 col-lg-1" *ngFor="let forms of companyForms">
-            <div class="checkbox">
-                <label><input type="checkbox" (click)="addCompanyform(forms)">{{forms.name}}</label>
-            </div>
-        </div>
-        <div class="col-xs-6 col-lg-1">
-            <div class="checkbox">
-                <label><input type="checkbox" checked="checked">Kaikki</label>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
         <div class="col-sm-6 col-xs-12">
             <div class="row">
                 <div class="col-lg-2 col-xs-12">
@@ -161,7 +145,7 @@
                             <label for="sel1" class="col-lg-4">Kaupungit</label>
                             <div class="col-lg-8">
                                 <span *ngFor="let city of addedCities" class="badge" (click)="removeElement(city, addedCities)">
-                                {{city.city}}
+                                    {{city}}
                                 </span>
                                 <span *ngIf="addedCities.length == 0"> Satunnainen </span>
                             </div>
@@ -175,20 +159,6 @@
                                      {{line.name}}
                                 </span>
                                 <span *ngIf="addedLines.length == 0"> Satunnainen </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-xs-12">
-                            <label for="sel1" class="col-lg-4">Yritysmuodot</label>
-                            <div class="col-lg-8">
-                                <span *ngFor="let form of companyForms">
-                                <template [ngIf]="form.checked">
-                                    <span class="badge">{{form.name}}</span>
-                                </template>
-                                </span>
-                                <span *ngIf="!companyFormSpecified()"> Satunnainen </span>
                             </div>
                         </div>
                     </div>

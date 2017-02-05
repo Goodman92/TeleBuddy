@@ -28,22 +28,66 @@ body {
 }
  
 /* YLEISET TYYLIT */
+
+.hide {
+  display:none;
+}
+
+.show {
+  display:block;
+}
+
 .extra-gutter {
     margin-top:1em;
   }
 
-  .right-align {
+.right-align {
     text-align: right;
   }
 
-  @media(min-width:769px) { 
+@media(min-width:769px) { 
     .row-eq-height {
       display:flex;
     }
-  }  
+}  
+
 .capitalize {
   text-transform: uppercase;
 }
+
+div.customer-table {
+    background-color: #fff;
+    padding: 1em 1em 0em 1em;
+    border-top: 2px solid #e7eaec;
+}
+
+div.customer-table > div.row {
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+  }
+
+button.btn-tlp {
+    background-color: #1ab394;
+    color: #fff;
+    font-weight: 600;
+}
+
+i {
+   margin-right: 0.5em;
+}
+
+.color-navy {
+  color: #1ab394;
+}
+
+.color-red {
+  background-color: #cc0000;
+}
+
+.centered {
+    text-align: center;
+  }
+
 /* APP TYYLIT, OMAAN TIEDOSTOON */
 
 app {
@@ -97,11 +141,6 @@ side-bar {
     text-decoration:none;
     cursor: pointer;
   }
-
-  .centered {
-    text-align: center;
-  }
-
 
   .user-lift {
     padding: 1em 0em 1em 0em;
@@ -223,16 +262,6 @@ state-template {
 /* CUSTOMER-TABLE TYYLIT */
 
 customer-table {
-  div.customer-table {
-    background-color: #fff;
-    padding: 1em;
-    border-top: 2px solid #e7eaec;
-  }
-
-  div.customer-table > div.row {
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
-  }
 
   div.table-header {
       border-bottom: 1px solid #e7eaec;  
@@ -302,12 +331,6 @@ customer-table {
   .table-responsive {
     min-height: 200px;
     position:relative;
-  }
-
-  button.btn-tlp {
-    background-color: #1ab394;
-    color: #fff;
-    font-weight: 600;
   }
 
   .fa-refresh, .fa-users {
@@ -382,4 +405,102 @@ pagination {
         -ms-user-select: none;
             user-select: none;
   }
+}
+
+customer-home, users-home {
+  div.lift-box {
+    background-color: #fff;
+    padding: 1em;
+    border-top: 2px solid #e7eaec;
+    height:100%;
+  }
+
+  div.add-box-heading {
+    padding-bottom: 0.5em;
+  }
+
+  div.add-box-heading > h4 {
+    display:inline;
+  }
+
+  div.add-box-body {
+    padding-top: 0.5em;
+    transition: opacity 1s ease-out;
+  }
+}
+
+customer-home {
+
+  .form-control {
+    display:inline;
+    width:auto;
+  }
+
+  .btn-tlp {
+    vertical-align: 0;
+  }
+
+
+   div.table-header {
+      border-bottom: 1px solid #e7eaec;  
+  }
+
+  th, td {
+    border: 1px solid #e7e7e7;
+  }
+
+  .table {
+    margin-bottom: 0;
+  }
+
+  tr:nth-child(odd) {
+    background-color: #f9f9f9;
+  }
+
+  .table-responsive {
+    min-height: 200px;
+    position:relative;
+    margin-top:1em;
+  }
+
+  button.btn-tlp {
+    background-color: #cc0000;
+  }
+}
+
+users-home {
+
+  .form-control {
+    border-radius: 1px;
+  }
+
+  label {
+    color: #676a6c;
+  }
+
+  .table-header {
+    border-bottom: 2px solid #e7eaec;
+  }
+
+  i.big-icon {
+      font-size: 17em;
+      color: #e5e6e7;
+  }
+
+  .custom-check {
+    display:inline-block;
+    width:2em;
+    vertical-align: middle;
+    margin-right: 2em;
+  }
+
+  div.inline-wrapper label {
+    margin-right: 3em;
+  }
+
+  h4 {
+    text-align:left;
+    color: #676a6c;
+  }
+
 }

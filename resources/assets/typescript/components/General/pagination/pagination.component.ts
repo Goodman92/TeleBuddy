@@ -48,7 +48,7 @@ export class PaginationComponent {
         }
     }
 
-    //arbitraarinen vaihdos 
+    //arbitraarinen vaihdos  
     public jumpTo(value: number): void {
         let initialDelimiter = Math.ceil(this.pageCount / 2);
         let lastDelimiter = this.paginationSize - Math.floor(this.pageCount / 2);
@@ -68,8 +68,6 @@ export class PaginationComponent {
             }
         }
         this.pageChanged.emit(this.currentPage * this.perPage);
-
-
     }
 
     ngOnChanges(changes) {
@@ -81,6 +79,7 @@ export class PaginationComponent {
 
         // jos sivun koko(perPage) vaihtuu esim 25 -> 10, päivitetään pagi kuntoon
         if (changes.perPage) {
+            console.log("changes.perPage");
             if (changes.perPage.previousValue && this.currentPage != 1) {
                 let newpage = changes.perPage.previousValue * this.currentPage;
                 newpage = newpage < changes.perPage.currentValue ? changes.perPage.currentValue : newpage; 
@@ -91,14 +90,19 @@ export class PaginationComponent {
         }
 
         let page = 1;
-        if(this.currentPage > this.pageCount / 2 && this.currentPage < this.paginationSize - this.pageCount / 2) {
+        let remainingPages = this.paginationSize - this.pageCount / 2;
+        console.log("cp: " + this.currentPage);
+        console.log("pG: " + this.pageCount);
+        console.log("pS " + this.paginationSize);
+        if(this.currentPage > this.pageCount / 2 && this.currentPage < remainingPages) {
             page = this.currentPage - Math.floor(this.pageCount / 2);
         }
 
-        if(this.currentPage > this.paginationSize - this.pageCount / 2) {
+        if(this.currentPage > remainingPages) {
             let lastDelimiter = this.paginationSize - Math.floor(this.pageCount / 2);
             page = this.currentPage - Math.floor(this.pageCount / 2) - (this.currentPage-lastDelimiter);
         }
+        page = page < 1 ? 1 : page;
         this.numbers = Array(this.pageCount).fill(0).map((x, i) => {
             return i + page;
         });
@@ -106,7 +110,9 @@ export class PaginationComponent {
 
     private initializePagination() {
         this.paginationSize = Math.ceil(this.size / this.perPage);
-        this.pageCount = this.pageCount > this.paginationSize ? this.paginationSize : this.initialPageCount;
+        this.pageCount = this.initialPageCount > this.paginationSize ? this.paginationSize : this.initialPageCount;
+        console.log("pageCount " + this.pageCount);
+        console.log("paginationSize " + this.paginationSize);
     }
 
 } 

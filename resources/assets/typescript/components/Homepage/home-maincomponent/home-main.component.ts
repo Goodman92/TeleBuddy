@@ -4,7 +4,6 @@ import { Http, Headers, Response, RequestOptions } from "@angular/http";
 import { Observable } from "Rxjs";
 import { CustomCompanyModel } from "../../../interfaces/basemodel.interface";
 import { ListModel } from "../../../interfaces/basemodel.interface";
-
 // ei es6 toteutusta
 import fileSaver = require("file-saver");
 
@@ -18,11 +17,10 @@ export class CustomerTable {
   @ViewChild('sizeSelect') sizeRef: ElementRef;
 
   public businessLines: Array<string> = new Array();
-  private companyForms: Array<any> = new Array();
   public cities: Array<string> = new Array();
   public addedLines: Array<any> = new Array();
   public addedCities: Array<string> = new Array();
-  public addedForms: Array<any> = new Array();
+  private registrationFrom: string;
   private companies: Array<any> = new Array();
   public shownPages: number = 0;
   public loading: boolean = true;
@@ -47,6 +45,7 @@ export class CustomerTable {
 
   private defaultSelector: string = "Kaikki";
 
+
   constructor(private httpService: HttpService) {
     // roskaa  fixiä
     Observable.forkJoin(
@@ -55,11 +54,11 @@ export class CustomerTable {
       this.httpService.get('api/customers/clients/' + this.reserve + '/' + this.collectionSize)
     ).subscribe((result) => {
 
-      for(let entry of result[0].cities) {
-          this.cities.push(entry);
+      for (let entry of result[0].cities) {
+        this.cities.push(entry);
       }
-      for(let entry of result[1].lines) {
-          this.businessLines.push(entry);
+      for (let entry of result[1].lines) {
+        this.businessLines.push(entry);
       }
 
       this.companies = result[2].companies;
@@ -67,19 +66,12 @@ export class CustomerTable {
       this.loading = false;
     });
 
-    this.companyForms = [
-      { name: "AOY", checked: false },
-      { name: "OYJ", checked: false },
-      { name: "OY", checked: false },
-      { name: "OK", checked: false },
-      { name: "VOJ", checked: false }
-    ];
   }
 
   private getData(lowerbound: number, upperbound: number) {
     if (this.parameterFlag)
       return this.httpService
-        .post('/api/customers/custom/' + lowerbound + '/' + upperbound, new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, this.addedForms))
+        .post('/api/customers/custom/' + lowerbound + '/' + upperbound, new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, null))
     return this.httpService
       .get('api/customers/clients/' + lowerbound + '/' + upperbound);
   }
@@ -93,6 +85,7 @@ export class CustomerTable {
   }
 
   public linesUpdated(val) {
+    console.log("lines updated: " + val);
     if (val == this.defaultSelector) {
       this.addedLines = [];
     }
@@ -101,6 +94,7 @@ export class CustomerTable {
         return obj.name == val;
       });
       this.addedLines.push(element);
+      console.log(this.addedLines);
     }
   }
 
@@ -120,13 +114,13 @@ export class CustomerTable {
     this.limiter = parseInt(value.target.value);
   }
 
-  // pagination ajax, haetaan kerralla max 1500 tulosta kannasta. konffit ylhäällä .
+  // pagination ajax, haetaan kerralla max 1500 tulosta kannasta. konffit ylhäällä.
   public pageChanged(value) {
     console.log(value);
     value = parseInt(value);
     if (value < this.currentPosition) {
 
-      if (value - this.leftBuffer <= 0) {
+      if (value - this.leftBuffer <= 0 && value >= this.bufferSize) {
         this.buffer = this.leftBuffer;
         let lowerbound = this.leftBuffer - this.bufferSize < 0 ? 0 : this.leftBuffer - this.collectionSize;
 
@@ -162,7 +156,7 @@ export class CustomerTable {
           this.shownPages = this.currentPosition - this.reserve - this.limiter - this.left;
           this.right = (this.bufferSize / 2);
           this.left = 0;
-          // reserven upperl imitti
+          // reserven upper limitti
           console.log("valmi s. sP " + this.shownPages);
           console.log("ceili: " + result.testi);
           this.ceil = result.testi;
@@ -180,15 +174,15 @@ export class CustomerTable {
   public fetchResults() {
     this.parameterFlag = true;
     this.loading = true;
-    this.companyFormSpecified();
-    
-    if (this.addedLines.length == 0 && this.addedCities.length == 0 && this.addedForms.length == 0)
+
+    if (this.addedLines.length == 0 && this.addedCities.length == 0)
       this.parameterFlag = false;
 
     this.httpService
-      .post('/api/customers/custom/0/1500', new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, this.addedForms))
+      .post('/api/customers/custom/0/1500', new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, null))
       .subscribe((result) => {
         if (result.companies) {
+          console.log(result);
           this.companies = result.companies;
           this.size = result.active;
         }
@@ -197,38 +191,23 @@ export class CustomerTable {
 
   }
 
-  public addCompanyform(value) {
-    value.checked = !value.checked;
-  }
-
-  private companyFormSpecified() {
-    this.addedForms = [ ];
-    for (let i = 0; i < this.companyForms.length; i++) {
-      if (this.companyForms[i].checked && this.companyForms[i].name != this.defaultSelector)
-        this.addedForms.push(this.companyForms[i].name);
-    }
-  }
-
   public generateList() {
 
     let visibilities = this.visibilitiesRef.nativeElement.value;
     let size = this.sizeRef.nativeElement.value;
-    this.companyFormSpecified();
     this.httpService
-      .post('/api/customers/generate', new ListModel(size, visibilities, this.getCorrespondingLineIds(), this.addedCities, this.addedForms))
+      .post('/api/customers/generate', new ListModel(size, visibilities, this.getCorrespondingLineIds(), this.addedCities, null))
       .subscribe((result) => {
-        /*
-        let blob = new Blob([result._body], { type: 'text/xml'});
+        let blob = new Blob([result.data], { type: 'text/xml'});
         let url = window.URL.createObjectURL(blob);
         fileSaver.saveAs(blob, 'Yrityslistaus.xml');
-        */
       });
   }
 
   private getCorrespondingLineIds() {
     let ids: Array<number> = new Array();
-    for(let i = 0; i < this.addedLines.length; i++) {
-        ids.push(this.addedLines[i].id);
+    for (let i = 0; i < this.addedLines.length; i++) {
+      ids.push(this.addedLines[i].id);
     }
     return ids;
   }

@@ -17,12 +17,17 @@ import { CustomerTable } from "./components/Homepage/home-maincomponent/home-mai
 import { LoginComponent } from "./components/Loginpage/login/login.component";
 import { DropdownComponent } from "./components/Homepage/dropdown/dropdown.component";
 import { PaginationComponent } from "./components/General/pagination/pagination.component";
+import { CustomerHomeComponent } from "./components/Customerspage/customer-home/customer-home.component";
+import { UsersHomeComponent } from "./components/Userspage/users-home/users-home.component"; 
 
 //Services 
 import { AuthService } from "./services/auth/auth.service";
 import { HttpService } from "./services/http/http.service";
 import { FileUploadService } from "./services/file-upload/file-upload.service";
 import { LoginGuard, NotLoggedGuard } from "./services/login-guard/login-guard.service";
+
+//Pluginit
+
 
 @NgModule({
     imports: [
@@ -44,7 +49,9 @@ import { LoginGuard, NotLoggedGuard } from "./services/login-guard/login-guard.s
         CustomerTable,
         LoginComponent,
         DropdownComponent,
-        PaginationComponent
+        PaginationComponent,
+        CustomerHomeComponent,
+        UsersHomeComponent
     ],
     providers: [
         FileUploadService,

@@ -57,6 +57,7 @@
 			}
 
 		}
+		
 		public function getExcelXML() {
 			return $this->excelXML;
 		}

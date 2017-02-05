@@ -8,7 +8,7 @@
 	use Illuminate\Support\Facades\Response;
 	use Illuminate\Database\Eloquent;
 	use Illuminate\Support\Facades\File;
-
+	use Carbon\Carbon;
 	use JWTAuth;
 	use Tymon\JWTAuthExceptions\JWTAuthExceptions;
 
@@ -16,17 +16,15 @@
 	use \App\Models\BusinessLines;
 	use \App\Http\Controllers\Api\Utility\ExcelParser;
 
-
+	// TEE ERROR HANDLER
 	class CustomerController extends Controller {
 
+		private $lockDown;
 		public function __construct() {
 			$this->middleware('jwt.auth', ['except' => ['login']]);
 		}
 
 		public function index($floor = null, $ceil = null) {
-			Log::debug("get Customers");
-			Log::debug($floor);
-			Log::debug($ceil);
 
 			$companies = Company::with('contactDetails')
 								->with('businesslines')
@@ -38,12 +36,10 @@
 				'companies' => $companies
 			);
 
-			Log::debug("count ".$count);
 			return response()->json($result, 200);
 		}
 
 		public function getCities() {
-			Log::debug("cities");
 			$cities = Company::select('city')
 								->orderBy('city', 'asc')
 								->distinct()
@@ -55,7 +51,6 @@
 		}
 
 		public function getLines() {
-			Log::debug("lines");
 			$lines = BusinessLines::select('name', 'id')
 									->orderBy('name', 'asc')
 									->get();
@@ -66,16 +61,11 @@
 		}
 
 		public function getCustomCompanies(Request $request, $floor = null, $ceil = null) {
-			$parameters = $request->only('lines_', 'cities_', 'forms_');
-			Log::debug("getCustomCompanies");
-			Log::debug($floor);
-			Log::debug($ceil);
-			Log::debug($parameters);
+			$parameters = $request->only('lines_', 'cities_');
 			$companies = Company::with('contactDetails')
 								->with('businesslines')
 								->has('contactDetails');
 
-			$companies = $this->customWhereInEmpty($companies, $parameters['forms_'], 'companyForm');
 			$companies = $this->customWhereInEmpty($companies, $parameters['cities_'], 'city');
 			$companies = $this->customWhereInEmpty($companies, $parameters['lines_'], 'businessLine');
 
@@ -86,9 +76,6 @@
 				'companies' => $companies,
 				'active' => $count
 			);
-
-			Log::debug("total count ".$count);
-
 
 			return response()->json($result, 200);
 		}
@@ -114,36 +101,38 @@
 		}
 
 		public function getList(Request $request) {
-			$parameters = $request->only('listSize', 'visibilities', 'lines', 'cities', 'forms');
+
+
+			$parameters = $request->only('listSize', 'visibilities', 'lines', 'cities');
 			$size = $parameters['listSize'];
 			$visibilities = empty($parameters['visibilities']) ? 2 : $parameters['visibilities'];
 
 			$companies = Company::with('contactDetails')
-								->with('businesslines')
-								->with('visibilities')
-								->has('contactDetails');
+									->with('businesslines')
+									->with('visibilities')
+									->has('contactDetails');
 
-			$companies = $this->customWhereInEmpty($companies, $parameters['forms'], 'companyForm');
 			$companies = $this->customWhereInEmpty($companies, $parameters['cities'], 'city');
 			$companies = $this->customWhereInEmpty($companies, $parameters['lines'], 'businessLine');
 			$companies = $companies->has('visibilities', '>=', $visibilities)
-									->limit($size)->get();
+										->limit($size);
 
-			//aseta jäähylle
 
-			/* VAIHTOEHTOINEN JOINILLA
-			$companies = $companies->leftJoin('company_visibility', 'companies.id', '=', 'company_visibility.company_id')
-			->groupBy('company_visibility.company_id')
-			->havingRaw('COUNT(company_visibility.company_id) > '.$visibilities)->limit($size)->get();
-			*/
-			
-			$xml = $this->generateExcelFile($companies->toArray());
+				/* VAIHTOEHTOINEN JOINILLA
+				$companies = $companies->leftJoin('company_visibility', 'companies.id', '=', 'company_visibility.company_id')
+				->groupBy('company_visibility.company_id')
+				->havingRaw('COUNT(company_visibility.companComy_id) > '.$visibilities)->limit($size)->get();
+				*/
+				
+			$xml = $this->generateExcelFile($companies->get()->toArray());
 
 			$result = array(
-				'data' => $xml
-			);
-			return response()->json($result, 200);
+					'data' => $xml
+				);
 
+			$companies->delete();
+				
+			return response()->json($result, 200);
 
 		}
 
