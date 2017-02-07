@@ -22,7 +22,6 @@ export class CustomerTable {
   public cities: Array<string> = new Array();
   public addedLines: Array<any> = new Array();
   public addedCities: Array<string> = new Array();
-  private registrationFrom: string;
   private companies: Array<any> = new Array();
   public shownPages: number = 0;
   public loading: boolean = true;
@@ -112,9 +111,9 @@ export class CustomerTable {
   public pageChanged(value) {
     console.log(value);
     value = parseInt(value);
-    if (value >= this.ajaxConf.bufferSize) {
-      if (value < this.ajaxConf.currentPosition) {
+    if (this.ajaxConf.currentPosition >= this.ajaxConf.bufferSize) {
 
+      if (value < this.ajaxConf.currentPosition) {
         if (value <= this.ajaxConf.leftBuffer) {
           this.ajaxConf.buffer = this.ajaxConf.leftBuffer;
           let lowerbound = this.ajaxConf.leftBuffer - this.ajaxConf.bufferSize;
@@ -130,7 +129,6 @@ export class CustomerTable {
         }
       }
       else {
-
         if (value >= this.ajaxConf.buffer) {
           this.ajaxConf.leftBuffer = this.ajaxConf.buffer;
           let lowerbound = this.ajaxConf.buffer + this.ajaxConf.bufferSize / 2;
@@ -145,6 +143,7 @@ export class CustomerTable {
           this.ajaxConf.buffer += this.ajaxConf.bufferSize / 2;
         }
       }
+
     }
 
     this.ajaxConf.currentPosition = value;
@@ -162,7 +161,6 @@ export class CustomerTable {
       .post('/api/customers/custom/0/1500', new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, null))
       .subscribe((result) => {
         if (result.companies) {
-          console.log(result);
           this.companies = result.companies;
           this.size = result.active;
         }

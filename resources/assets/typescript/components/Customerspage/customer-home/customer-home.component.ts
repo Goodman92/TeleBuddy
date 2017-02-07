@@ -16,11 +16,11 @@ export class CustomerHomeComponent {
   private deletedClients: Array<any> = new Array<any>();
 
   public limiter: number = 10;
-  public size: number = 100000;
+  public size: number = 0;
   public count: number = 5;
   public shownPages: number = 0;
 
-  private businessId: string = " ";
+  private businessId: string = "";
   private success: boolean = false;
   private failed: boolean = false;
 
