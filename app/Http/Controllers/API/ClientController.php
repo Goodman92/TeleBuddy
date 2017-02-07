@@ -25,7 +25,6 @@
 		}
 
 		public function index() {
-			Log::debug("get clients");
 			$this->doRestoreCheck();
 			$clients = $this->getTrashedClients();
 
@@ -59,8 +58,11 @@
 
 		public function add($id) {
 			$client = Company::where('businessId', $id);
-			if($client->get()) {
+			$statusCode = 400;
+
+			if(!$client->get()->isEmpty()) {
 				$client->delete();
+				$statusCode = 200;
 			}
 
 			$clients = $this->getTrashedClients();
@@ -69,7 +71,9 @@
 				'companies' => $clients
 			);
 
-			return response()->json($result, 200);
+			Log::debug($statusCode);
+
+			return response()->json($result, $statusCode);
 
 		}
 

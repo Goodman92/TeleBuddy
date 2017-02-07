@@ -5,7 +5,8 @@
 				<h2 class="color-navy"> Asiakkaat </h2>
 				<p>
 					<i class="fa fa-info-circle" aria-hidden="true"></i> Selaa tämän hetkisiä asiakkaita ja lisää niitä järjestelmään yritystunnuksen
-					avulla. Asiakkailla on neljän kuukauden karenssi, jonka jälkeen nämä lisätään uudestaan järjestelmään. Voit myös poistaa asiakkaita manuaalisesti.</p>
+					avulla. Asiakkailla on neljän kuukauden karenssi, jonka jälkeen nämä lisätään uudestaan järjestelmään. Voit myös poistaa
+					asiakkaita manuaalisesti.</p>
 			</div>
 		</div>
 	</div>
@@ -24,6 +25,16 @@
 						<label for="sel1">Yritystunnus </label>
 						<input type="text" class="form-control" (keyup)="onKey($event)">
 						<button class="btn btn-tlp" type="button" (click)="addClient()">Lisää</button>
+
+						<div class="alert alert-success alert-dismissable" *ngIf="success">
+							<a href="#" class="close" (click)="hideAlert()">&times;</a>
+							<strong>Lisätty!</strong> Y-tunnus oikea, yritys lisätty.
+						</div>
+						<div class="alert alert-danger alert-dismissable" *ngIf="failed">
+							<a href="#" class="close" (click)="hideAlert()">×</a>
+							<strong>Virhe!</strong> Y-tunnusta ei löytynyt järjestelmästä.
+						</div>
+
 					</div>
 				</div>
 			</div>
@@ -70,7 +81,7 @@
 				</tbody>
 			</table>
 		</div>
-		
+
 		<div class="row row-eq-height">
 			<div class="col-xs-6">
 				<button type="button" class="btn btn-tlp color-red" (click)="confirmDelete()" *ngIf="deletedClients.length > 0">

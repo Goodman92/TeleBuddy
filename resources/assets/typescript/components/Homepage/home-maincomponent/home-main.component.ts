@@ -1,9 +1,11 @@
-import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef, NgZone } from '@angular/core';
 import { HttpService } from "../../../services/http/http.service";
 import { Http, Headers, Response, RequestOptions } from "@angular/http";
 import { Observable } from "Rxjs";
 import { CustomCompanyModel } from "../../../interfaces/basemodel.interface";
 import { ListModel } from "../../../interfaces/basemodel.interface";
+import { AjaxModel } from "./interface.ajaxconf";
+
 // ei es6 toteutusta
 import fileSaver = require("file-saver");
 
@@ -27,31 +29,24 @@ export class CustomerTable {
 
   private parameterFlag: boolean = false;
 
-  // Pagination komponentin konffit, voi muuttaa
+  // Pagination komponentin konffit, voi muuttaa, tee modeli 
   public limiter: number = 25;
   public size: number = 100000;
   public count: number = 5;
 
-  // Ajax pagination ko nffit
-  private buffer: number = 1000;
-  private leftBuffer: number = 1000;
-  private bufferSize: number = 1000;
-  private collectionSize: number = 1500;
-  private currentPosition: number = 25;
-  private reserve: number = 0;
-  public right: number = 0;
-  public left: number = 0;
-  private ceil: number = 0;
+  // Ajax pagination konffit
+  private ajaxConf: AjaxModel;
 
   private defaultSelector: string = "Kaikki";
 
 
-  constructor(private httpService: HttpService) {
+  constructor(private httpService: HttpService, private zone: NgZone) {
+    this.ajaxConf = new AjaxModel(1000, 1000, 1000, 1500, 25, 0);
     // roskaa  fixiä
     Observable.forkJoin(
       this.httpService.get('api/customers/cities'),
       this.httpService.get('api/customers/lines'),
-      this.httpService.get('api/customers/clients/' + this.reserve + '/' + this.collectionSize)
+      this.httpService.get('api/customers/clients/' + this.ajaxConf.reserve + '/' + this.ajaxConf.collectionSize)
     ).subscribe((result) => {
 
       for (let entry of result[0].cities) {
@@ -64,6 +59,7 @@ export class CustomerTable {
       this.companies = result[2].companies;
       this.size = result[2].active;
       this.loading = false;
+
     });
 
   }
@@ -85,7 +81,6 @@ export class CustomerTable {
   }
 
   public linesUpdated(val) {
-    console.log("lines updated: " + val);
     if (val == this.defaultSelector) {
       this.addedLines = [];
     }
@@ -94,7 +89,6 @@ export class CustomerTable {
         return obj.name == val;
       });
       this.addedLines.push(element);
-      console.log(this.addedLines);
     }
   }
 
@@ -118,57 +112,43 @@ export class CustomerTable {
   public pageChanged(value) {
     console.log(value);
     value = parseInt(value);
-    if (value < this.currentPosition) {
+    if (value >= this.ajaxConf.bufferSize) {
+      if (value < this.ajaxConf.currentPosition) {
 
-      if (value - this.leftBuffer <= 0 && value >= this.bufferSize) {
-        this.buffer = this.leftBuffer;
-        let lowerbound = this.leftBuffer - this.bufferSize < 0 ? 0 : this.leftBuffer - this.collectionSize;
+        if (value <= this.ajaxConf.leftBuffer) {
+          this.ajaxConf.buffer = this.ajaxConf.leftBuffer;
+          let lowerbound = this.ajaxConf.leftBuffer - this.ajaxConf.bufferSize;
 
-        this.getData(lowerbound, this.bufferSize + this.right).mergeMap((result) => {
-          if (result.companies) {
-            this.companies.splice((this.bufferSize / 2) - this.right, this.bufferSize + this.right);
+          this.getData(lowerbound, this.ajaxConf.bufferSize / 2).mergeMap((result) => {
+            this.companies.splice(this.ajaxConf.bufferSize, this.ajaxConf.bufferSize / 2);
             this.companies = result.companies.concat(this.companies);
-            this.reserve -= this.bufferSize + this.right;
-            this.shownPages = this.shownPages + this.bufferSize + this.right;
-            this.right = 0;
-            this.left = (this.bufferSize / 2);
-            if (this.reserve < 0) {
-              this.reserve = this.left = 0;
-            }
+            this.ajaxConf.reserve -= this.ajaxConf.bufferSize / 2;
+            this.shownPages = this.ajaxConf.currentPosition - this.ajaxConf.reserve - this.limiter;
             return "";
-          }
-        }).subscribe();
-        this.leftBuffer -= this.bufferSize;
+          }).subscribe();
+          this.ajaxConf.leftBuffer -= this.ajaxConf.bufferSize / 2;
+        }
       }
-    }
-    else {
-      if (value >= this.buffer) {
-        this.leftBuffer = this.buffer;
-        let lowerbound = this.buffer + (this.bufferSize / 2) - this.left;
+      else {
 
-        this.getData(lowerbound, this.bufferSize + this.left).mergeMap((result) => {
+        if (value >= this.ajaxConf.buffer) {
+          this.ajaxConf.leftBuffer = this.ajaxConf.buffer;
+          let lowerbound = this.ajaxConf.buffer + this.ajaxConf.bufferSize / 2;
 
-          if (this.ceil < result.testi) {
-            this.companies.splice(0, this.bufferSize + this.left);
+          this.getData(lowerbound, this.ajaxConf.bufferSize / 2).mergeMap((result) => {
+            this.companies.splice(0, this.ajaxConf.bufferSize / 2);
             this.companies = this.companies.concat(result.companies);
-          }
-          this.reserve += this.bufferSize + this.left;
-          this.shownPages = this.currentPosition - this.reserve - this.limiter - this.left;
-          this.right = (this.bufferSize / 2);
-          this.left = 0;
-          // reserven upper limitti
-          console.log("valmi s. sP " + this.shownPages);
-          console.log("ceili: " + result.testi);
-          this.ceil = result.testi;
-          return "";
-        }).subscribe();
-
-        this.buffer += this.bufferSize;
+            this.ajaxConf.reserve += this.ajaxConf.bufferSize / 2;
+            this.shownPages = this.ajaxConf.currentPosition - this.ajaxConf.reserve - this.limiter;
+            return "";
+          }).subscribe();
+          this.ajaxConf.buffer += this.ajaxConf.bufferSize / 2;
+        }
       }
     }
 
-    this.currentPosition = value;
-    this.shownPages = value - this.limiter - this.reserve;
+    this.ajaxConf.currentPosition = value;
+    this.shownPages = value - this.limiter - this.ajaxConf.reserve;
   }
 
   public fetchResults() {
@@ -198,7 +178,7 @@ export class CustomerTable {
     this.httpService
       .post('/api/customers/generate', new ListModel(size, visibilities, this.getCorrespondingLineIds(), this.addedCities, null))
       .subscribe((result) => {
-        let blob = new Blob([result.data], { type: 'text/xml'});
+        let blob = new Blob([result.data], { type: 'text/xml' });
         let url = window.URL.createObjectURL(blob);
         fileSaver.saveAs(blob, 'Yrityslistaus.xml');
       });

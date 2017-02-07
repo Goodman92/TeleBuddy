@@ -1,3 +1,4 @@
+// HTTP MODELS
 export interface BaseModel {
     stringify();
 }

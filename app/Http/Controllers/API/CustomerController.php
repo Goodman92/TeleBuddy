@@ -25,7 +25,9 @@
 		}
 
 		public function index($floor = null, $ceil = null) {
-
+			Log::debug("------------------");
+			Log::debug($floor);
+			Log::debug($ceil);
 			$companies = Company::with('contactDetails')
 								->with('businesslines')
 								->has('contactDetails');
@@ -87,8 +89,8 @@
 									->count();
 			$lineCount = BusinessLines::count();
 
-			$customerCount = 0;
-			$previousUpdate = "10-01-2017";
+			$customerCount = Company::onlyTrashed()->count();
+			$previousUpdate = "16-02-2017";
 			$result = array(
 				'companies' => $companyCount,
 				'lines' => $lineCount,
@@ -114,23 +116,26 @@
 
 			$companies = $this->customWhereInEmpty($companies, $parameters['cities'], 'city');
 			$companies = $this->customWhereInEmpty($companies, $parameters['lines'], 'businessLine');
-			$companies = $companies->has('visibilities', '>=', $visibilities)
-										->limit($size);
+			$companies = $companies->has('visibilities', '>=', $visibilities)->inRandomOrder()
+										->limit($size)->get()->toArray();
 
 
-				/* VAIHTOEHTOINEN JOINILLA
-				$companies = $companies->leftJoin('company_visibility', 'companies.id', '=', 'company_visibility.company_id')
-				->groupBy('company_visibility.company_id')
-				->havingRaw('COUNT(company_visibility.companComy_id) > '.$visibilities)->limit($size)->get();
-				*/
+			/* VAIHTOEHTOINEN JOINILLA
+			$companies = $companies->leftJoin('company_visibility', 'companies.id', '=', 'company_visibility.company_id')
+			->groupBy('company_visibility.company_id')
+			->havingRaw('COUNT(company_visibility.companComy_id) > '.$visibilities)->limit($size)->get();
+			*/
+
 				
-			$xml = $this->generateExcelFile($companies->get()->toArray());
+			$xml = $this->generateExcelFile($companies);
 
 			$result = array(
 					'data' => $xml
 				);
 
-			$companies->delete();
+			foreach($companies as $key => $value) {
+				Company::find($value['id'])->delete();
+			}
 				
 			return response()->json($result, 200);
 

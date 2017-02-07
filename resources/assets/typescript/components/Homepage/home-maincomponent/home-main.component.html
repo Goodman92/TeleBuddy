@@ -78,11 +78,11 @@
             <tbody>
                 <tr *ngFor="let company of companies; let i=index">
                     <template [ngIf]="i<limiter + shownPages && i >= shownPages">
-                        <td> {{company.name}} </td>
+                        <td> {{company.id}} {{company.name}} </td>
                         <td> {{company.businessId}} </td>
                         <td> {{company.companyForm}} </td>
                         <td> {{company.businesslines.name}}</td>
-                        <td> {{company.contact_details.matkapuhelin ? company.contact_details.matkapuhelin : company.contact_details.puhelin}}</td>
+                        <td> {{company.contact_details.matkapuhelin ? company.contact_details.matkapuhelin : company.contact_details.puhelin }}</td>
                         <td> {{company.city}} </td>
                     </template>
                 </tr>
@@ -91,7 +91,7 @@
     </div>
     <div class="row row-eq-height">
         <div class="col-xs-12 col-sm-6">
-            <h5> Näytetään {{currentPosition - limiter}} - {{currentPosition}} / {{size}} </h5>
+            <h5> Näytetään {{ajaxConf.currentPosition - limiter}} - {{ajaxConf.currentPosition}} / {{size}} </h5>
         </div>
 
         <div class="col-xs-12 right-align">

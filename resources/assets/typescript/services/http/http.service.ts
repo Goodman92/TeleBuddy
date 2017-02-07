@@ -14,6 +14,7 @@ export class HttpService {
             .get(url, options)
             .map((response: Response) => {
                try {
+                   console.log(response);
                     return response.json();
                 }
                 catch(err) {
