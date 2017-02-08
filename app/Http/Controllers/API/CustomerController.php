@@ -25,9 +25,6 @@
 		}
 
 		public function index($floor = null, $ceil = null) {
-			Log::debug("------------------");
-			Log::debug($floor);
-			Log::debug($ceil);
 			$companies = Company::with('contactDetails')
 								->with('businesslines')
 								->has('contactDetails');
@@ -147,9 +144,6 @@
 			$configuration = array("name" => "Nimi", "businessId" => "Y-tunnus", "businesslines" => array("name" => "Toimiala"), "city" => "Kaupunki", "contact_details" => array("matkapuhelin" => "matkapuhelin", "puhelin" => "puhelin"), "visibilities" => array(array("name")));
 
 			$excelParser = new ExcelParser($configuration, $rows);
-
-			$file= public_path(). "/tlp.xml";
-			$excelParser->getExcelXML()->saveXML('tlp.xml');
 
 			return $excelParser->getExcelXML()->asXML();
 

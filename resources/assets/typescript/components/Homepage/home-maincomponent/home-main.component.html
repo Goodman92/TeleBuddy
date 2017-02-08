@@ -78,7 +78,7 @@
             <tbody>
                 <tr *ngFor="let company of companies; let i=index">
                     <template [ngIf]="i<limiter + shownPages && i >= shownPages">
-                        <td> {{company.id}} {{company.name}} </td>
+                        <td> {{company.name}} </td>
                         <td> {{company.businessId}} </td>
                         <td> {{company.companyForm}} </td>
                         <td> {{company.businesslines.name}}</td>
@@ -99,6 +99,7 @@
         </div>
     </div>
 
+    <!-- MODAALI KOMPONENTIKSI -->
     <div id="myModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
