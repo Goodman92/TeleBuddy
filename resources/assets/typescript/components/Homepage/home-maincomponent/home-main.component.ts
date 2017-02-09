@@ -14,6 +14,8 @@ import fileSaver = require("file-saver");
   'template': require('./home-main.component.html')
 })
 
+// TOTALLY FUCKED UP, NE YRITYKSET ETC OMAAN MODELIIN, TEE STORAGE OBJEKTI, NIIN SAATTAA JOPA TESTAUS OLLA MAHDOLLISTA 
+// PÄIVITYS, POISTO, LISÄYS MODELIN VASTUULLE
 export class CustomerTable {
   @ViewChild('visibilitiesSelect') visibilitiesRef: ElementRef;
   @ViewChild('sizeSelect') sizeRef: ElementRef;
