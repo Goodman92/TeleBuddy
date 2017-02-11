@@ -1,10 +1,11 @@
-import { Component, Inject, ViewChild, ElementRef, NgZone } from '@angular/core';
+import { Component, Inject, ViewChild, ElementRef } from '@angular/core';
 import { HttpService } from "../../../services/http/http.service";
-import { Http, Headers, Response, RequestOptions } from "@angular/http";
 import { Observable } from "Rxjs";
 import { CustomCompanyModel } from "../../../interfaces/basemodel.interface";
 import { ListModel } from "../../../interfaces/basemodel.interface";
 import { AjaxModel } from "./interface.ajaxconf";
+import { PagiConfiguration } from "../../General/pagination/pagination.interface";
+import { CityModel, DetailsStorage, ExtendedStorage, BsnsModel, IDetails } from "./home.models";
 
 // ei es6 toteutusta
 import fileSaver = require("file-saver");
@@ -14,94 +15,60 @@ import fileSaver = require("file-saver");
   'template': require('./home-main.component.html')
 })
 
-// TOTALLY FUCKED UP, NE YRITYKSET ETC OMAAN MODELIIN, TEE STORAGE OBJEKTI, NIIN SAATTAA JOPA TESTAUS OLLA MAHDOLLISTA 
-// PÄIVITYS, POISTO, LISÄYS MODELIN VASTUULLE
 export class CustomerTable {
   @ViewChild('visibilitiesSelect') visibilitiesRef: ElementRef;
   @ViewChild('sizeSelect') sizeRef: ElementRef;
 
-  public businessLines: Array<string> = new Array();
-  public cities: Array<string> = new Array();
-  public addedLines: Array<any> = new Array();
-  public addedCities: Array<string> = new Array();
+  private cityStorage: DetailsStorage;
+  private linesStorage: ExtendedStorage;
+  private ajaxConf: AjaxModel;
+
   private companies: Array<any> = new Array();
   public shownPages: number = 0;
   public loading: boolean = true;
-
   private parameterFlag: boolean = false;
-
-  // Pagination komponentin konffit, voi muuttaa, tee modeli 
   public limiter: number = 25;
-  public size: number = 100000;
+  public size: number = 0;
   public count: number = 5;
-
-  // Ajax pagination konffit
-  private ajaxConf: AjaxModel;
 
   private defaultSelector: string = "Kaikki";
 
 
-  constructor(private httpService: HttpService, private zone: NgZone) {
+  constructor(private httpService: HttpService) {
     this.ajaxConf = new AjaxModel(1000, 1000, 1000, 1500, 25, 0);
-    // roskaa  fixiä
-    Observable.forkJoin(
-      this.httpService.get('api/customers/cities'),
-      this.httpService.get('api/customers/lines'),
-      this.httpService.get('api/customers/clients/' + this.ajaxConf.reserve + '/' + this.ajaxConf.collectionSize)
-    ).subscribe((result) => {
-
-      for (let entry of result[0].cities) {
-        this.cities.push(entry);
-      }
-      for (let entry of result[1].lines) {
-        this.businessLines.push(entry);
-      }
-
-      this.companies = result[2].companies;
-      this.size = result[2].active;
-      this.loading = false;
-
-    });
-
+    this.cityStorage = new DetailsStorage();
+    this.linesStorage = new ExtendedStorage();
   }
 
   private getData(lowerbound: number, upperbound: number) {
+    let ids = this.linesStorage.getCorrespondingIDs();
+
     if (this.parameterFlag)
       return this.httpService
-        .post('/api/customers/custom/' + lowerbound + '/' + upperbound, new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, null))
+        .post('/api/customers/custom/' + lowerbound + '/' + upperbound, new CustomCompanyModel(ids, this.cityStorage.getModified(), null))
     return this.httpService
       .get('api/customers/clients/' + lowerbound + '/' + upperbound);
   }
 
 
-  public removeElement(value: string, collection: Array<string>): void {
-    var index = collection.indexOf(value);
-    if (index > -1) {
-      collection.splice(index, 1);
-    }
+  public removeElement(value: IDetails, collection: DetailsStorage): void {
+    collection.findOrFail(value);
   }
 
   public linesUpdated(val) {
-    if (val == this.defaultSelector) {
-      this.addedLines = [];
-    }
-    else {
-      let element: any = this.businessLines.find((obj: any) => {
-        return obj.name == val;
-      });
-      this.addedLines.push(element);
-    }
+    this.updateStorage(val, this.linesStorage);
   }
 
   public citiesUpdated(val) {
-    if (val == this.defaultSelector) {
-      this.addedCities = [];
+    this.updateStorage(val, this.cityStorage);
+  }
+
+  private updateStorage(value: string, storage: DetailsStorage) {
+    if (value == this.defaultSelector) {
+      storage.resetModified();
     }
     else {
-      let element: any = this.cities.find((obj: any) => {
-        return obj.city == val;
-      });
-      this.addedCities.push(element.city);
+      storage.findAndInsert(value);
     }
   }
 
@@ -153,30 +120,27 @@ export class CustomerTable {
   }
 
   public fetchResults() {
-    this.parameterFlag = true;
     this.loading = true;
-
-    if (this.addedLines.length == 0 && this.addedCities.length == 0)
-      this.parameterFlag = false;
+    let ids = this.linesStorage.getCorrespondingIDs();
+    this.parameterFlag = (this.linesStorage.isModifiedEmpty() && this.cityStorage.isModifiedEmpty()) ? true : false;
 
     this.httpService
-      .post('/api/customers/custom/0/1500', new CustomCompanyModel(this.getCorrespondingLineIds(), this.addedCities, null))
+      .post('/api/customers/custom/0/1500', new CustomCompanyModel(ids, this.cityStorage.getModified(), null))
       .subscribe((result) => {
-        if (result.companies) {
-          this.companies = result.companies;
-          this.size = result.active;
-        }
+        this.companies = result.companies;
+        this.size = result.active;
         this.loading = false;
       });
 
   }
 
   public generateList() {
-
     let visibilities = this.visibilitiesRef.nativeElement.value;
     let size = this.sizeRef.nativeElement.value;
+    let ids = this.linesStorage.getCorrespondingIDs();
+
     this.httpService
-      .post('/api/customers/generate', new ListModel(size, visibilities, this.getCorrespondingLineIds(), this.addedCities, null))
+      .post('/api/customers/generate', new ListModel(size, visibilities, ids, this.cityStorage.getModified(), null))
       .subscribe((result) => {
         let blob = new Blob([result.data], { type: 'text/xml' });
         let url = window.URL.createObjectURL(blob);
@@ -184,11 +148,23 @@ export class CustomerTable {
       });
   }
 
-  private getCorrespondingLineIds() {
-    let ids: Array<number> = new Array();
-    for (let i = 0; i < this.addedLines.length; i++) {
-      ids.push(this.addedLines[i].id);
-    }
-    return ids;
+  ngOnInit() {
+    Observable.forkJoin(
+      this.httpService.get('api/customers/cities'),
+      this.httpService.get('api/customers/lines'),
+      this.httpService.get('api/customers/clients/' + this.ajaxConf.reserve + '/' + this.ajaxConf.collectionSize)
+    ).subscribe((result) => {
+      for (let entry of result[0].cities) {
+        this.cityStorage.insert(new CityModel(entry.city));
+      }
+      for (let entry of result[1].lines) {
+        this.linesStorage.insert(new BsnsModel(entry));
+      }
+      this.companies = result[2].companies;
+      this.size = result[2].active;
+      this.loading = false;
+
+    });
   }
+
 } 

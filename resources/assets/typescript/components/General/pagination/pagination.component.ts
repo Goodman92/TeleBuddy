@@ -1,4 +1,5 @@
 import { Component, Inject, Input, Output, EventEmitter } from '@angular/core';
+import { PagiConfiguration } from "./pagination.interface"
 
 @Component({
     'selector': 'pagination',
@@ -10,19 +11,17 @@ export class PaginationComponent {
     @Input('size') size: number;
     @Input('perPage') perPage: number;
     @Output() pageChanged = new EventEmitter();
-    initialPageCount: number;
     numbers: Array<number>;
     currentPage: number = 1;
     paginationSize: number;
-    flag: boolean = true;
 
     constructor() { }
 
-    //sivun vaihdos eteenpäin -napilla
+    //sivun vaihdos eteenpäin -napilla 
     public next(): void {
         if (this.currentPage < this.paginationSize) {
             this.currentPage++;
-            this.updatePaginationNumber(1);
+            this.updatePaginationNumber();
             this.pageChanged.emit(this.currentPage * this.perPage);
         }
     }
@@ -30,81 +29,52 @@ export class PaginationComponent {
     //sivun vaihdos taaksepäin -napilla
     public prev(): void {
         if (this.currentPage > 1) {
-            this.updatePaginationNumber(-1);
             this.currentPage--;
+            this.updatePaginationNumber();
             this.pageChanged.emit(this.currentPage * this.perPage);
         }
     }
 
     //arbitraarinen vaihdos  
     public jumpTo(value: number): void {
-        let initialDelimiter = Math.ceil(this.pageCount / 2);
-        let lastDelimiter = this.paginationSize - Math.floor(this.pageCount / 2);
-        let floor = value - Math.floor(this.pageCount / 2);
-        this.currentPage = value;
-        if (this.currentPage > initialDelimiter && this.currentPage <= lastDelimiter) {
-            for (let i = 0; i < this.pageCount; i++) {
-                this.numbers[i] = floor + i;
-            }
-        } else if (this.currentPage <= initialDelimiter) {
-            for (let i = 0; i < this.pageCount; i++) {
-                this.numbers[i] = i + 1;
-            }
-        } else {
-            for (let i = 0; i < this.pageCount; i++) {
-                this.numbers[i] = this.paginationSize - this.pageCount + i + 1;
-            }
+        if (value != this.currentPage) {
+            this.currentPage = value;
+            this.updatePaginationNumber();
+            this.pageChanged.emit(this.currentPage * this.perPage);
         }
-        this.pageChanged.emit(this.currentPage * this.perPage);
     }
 
-    ngOnChanges(changes) {
-        console.log("ngOnCHanged");
-        if (this.flag) {
-            this.initialPageCount = this.pageCount;
-            this.flag = !this.flag;
-        }
-        this.initializePagination();
+    private updatePaginationNumber() {
+        let initialDelimiter = Math.floor(this.pageCount / 2);
+        let lastDelimiter = this.paginationSize - Math.floor(this.pageCount / 2);
+        let remaining = lastDelimiter - Math.floor(this.pageCount / 2);
 
-        // jos sivun koko(perPage) vaihtuu esim 25 -> 10, päivitetään pagi kuntoon
-        if (changes.perPage) {
-            if (changes.perPage.previousValue && this.currentPage != 1) {
-                let newpage = changes.perPage.previousValue * this.currentPage;
-                newpage = newpage < changes.perPage.currentValue ? changes.perPage.currentValue : newpage;
-                this.pageChanged.emit(newpage);
-                this.currentPage = Math.floor(this.currentPage * changes.perPage.previousValue / changes.perPage.currentValue);
-                this.currentPage = this.currentPage < 1 ? 1 : this.currentPage;
-            }
-        }
+        let root = this.currentPage - Math.floor(this.pageCount / 2);
+        root = root < initialDelimiter ? 1 : root;
+        root = root > remaining ? remaining : root;
 
-        let page = 1;
-        let remainingPages = this.paginationSize - this.pageCount / 2;
-        if (this.currentPage > this.pageCount / 2 && this.currentPage < remainingPages) {
-            page = this.currentPage - Math.floor(this.pageCount / 2);
+        for (let i = 0; i < this.pageCount; i++) {
+            this.numbers[i] = i + root;
         }
-
-        if (this.currentPage > remainingPages) {
-            let lastDelimiter = this.paginationSize - Math.floor(this.pageCount / 2);
-            page = this.currentPage - Math.floor(this.pageCount / 2) - (this.currentPage - lastDelimiter);
-        }
-        page = page < 1 ? 1 : page;
-        this.numbers = Array(this.pageCount).fill(0).map((x, i) => {
-            return i + page;
-        });
     }
 
     private initializePagination() {
         this.paginationSize = Math.ceil(this.size / this.perPage);
-        this.pageCount = this.initialPageCount > this.paginationSize ? this.paginationSize : this.initialPageCount;
+        this.pageCount = this.pageCount > this.paginationSize ? this.paginationSize : this.pageCount;
+        this.numbers = Array(this.pageCount).fill(0).map((x, i) => i);
     }
 
-    private updatePaginationNumber(value) {
-        let initialDelimiter = Math.ceil(this.pageCount / 2);
-        let lastDelimiter = this.paginationSize - Math.floor(this.pageCount / 2);
-        if (this.currentPage > initialDelimiter && this.currentPage <= lastDelimiter) {
-            for (let i = 0; i < this.pageCount; i++) {
-                this.numbers[i] = this.numbers[i] + value;
+    ngOnChanges(changes) {
+        if (changes.size.currentValue != 0) {
+            this.initializePagination();
+            if (changes.perPage) {
+                if (this.currentPage != 1) {
+                    let difference = changes.perPage.currentValue / changes.perPage.previousValue;
+                    let newPage = Math.floor(this.currentPage / difference);
+                    this.currentPage = newPage < 1 ? 1 : newPage;
+                }
             }
+            this.updatePaginationNumber();
         }
     }
 } 

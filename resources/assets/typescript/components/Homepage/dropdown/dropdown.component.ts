@@ -1,4 +1,5 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { DetailsStorage} from "../home-maincomponent/home.models";
 
 @Component({
     'selector': 'dropdown',
@@ -6,12 +7,10 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 })
 
 export class DropdownComponent {
-    @Input('collection') collection: any;
+    @Input('collection') collection: Array<DetailsStorage>;
     @Output() collectionUpdated = new EventEmitter();
-    private modifiedCollection: Array<string> = new Array<string>();
 
     public onChange(value: string): void {
         this.collectionUpdated.emit(value);
     }
-
 }

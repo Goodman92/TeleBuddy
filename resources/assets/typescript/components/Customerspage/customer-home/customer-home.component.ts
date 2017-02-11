@@ -2,6 +2,7 @@ import { Component, ReflectiveInjector, ViewChild, ElementRef } from '@angular/c
 import { HttpService } from "../../../services/http/http.service";
 import { ClientModel } from "../../../interfaces/basemodel.interface";
 import { Observable, Subscription } from "rxjs/Rx";
+import { State } from "./state.enum";
 
 @Component({
   selector: 'customer-home',
@@ -14,6 +15,7 @@ export class CustomerHomeComponent {
   private trigger: boolean = true;
   private companies: Array<any>;
   private deletedClients: Array<any> = new Array<any>();
+  private state: State = State.UNKNOWN;
 
   public limiter: number = 10;
   public size: number = 0;
@@ -21,8 +23,6 @@ export class CustomerHomeComponent {
   public shownPages: number = 0;
 
   private businessId: string = "";
-  private success: boolean = false;
-  private failed: boolean = false;
 
   constructor(private httpService: HttpService) {
     this.companies = new Array<any>();
@@ -36,23 +36,19 @@ export class CustomerHomeComponent {
   }
 
   private showForm(): void {
-    console.log(this.trigger);
     this.trigger = !this.trigger;
   }
 
   public pageChanged(value) {
-    value = parseInt(value);
-    this.shownPages = value - this.limiter;
+    this.shownPages = parseInt(value) - this.limiter;
   }
 
   private removeClient(index): void {
-    console.log(index);
     this.deletedClients.push(this.companies[index]);
     this.companies.splice(index, 1);
   }
 
   private confirmDelete(): void {
-    console.log(this.deletedClients);
     this.httpService.post('/api/clients/delete', new ClientModel(this.deletedClients)).subscribe((result) => {
       this.deletedClients = [];
     });
@@ -65,20 +61,17 @@ export class CustomerHomeComponent {
   private addClient() {
     this.httpService.get('/api/clients/add/' + this.businessId).subscribe((result) => {
       this.companies = result.companies;
-      this.toggleAlert(true,false);
+      this.toggleAlert(State.SUCCESS);
     }, (error) => {
-      this.toggleAlert(false,true);
+      this.toggleAlert(State.FAILED);
     });
   }
 
   private hideAlert() {
-    this.success = false;
-    this.failed = false;
+    this.state = State.UNKNOWN;
   }
 
-  private toggleAlert(suc: boolean, fail: boolean) {
-    this.success = suc;
-    this.failed = fail;
+  private toggleAlert(status: State) {
+    this.state = status;
   }
-
 }

@@ -26,11 +26,11 @@
 						<input type="text" class="form-control" (keyup)="onKey($event)">
 						<button class="btn btn-tlp" type="button" (click)="addClient()">Lisää</button>
 
-						<div class="alert alert-success alert-dismissable" *ngIf="success">
+						<div class="alert alert-success alert-dismissable" *ngIf="state == 1">
 							<a href="#" class="close" (click)="hideAlert()">&times;</a>
 							<strong>Lisätty!</strong> Y-tunnus oikea, yritys lisätty.
 						</div>
-						<div class="alert alert-danger alert-dismissable" *ngIf="failed">
+						<div class="alert alert-danger alert-dismissable" *ngIf="state == 2">
 							<a href="#" class="close" (click)="hideAlert()">×</a>
 							<strong>Virhe!</strong> Y-tunnusta ei löytynyt järjestelmästä.
 						</div>
@@ -40,7 +40,6 @@
 			</div>
 		</div>
 	</div>
-
 
 	<div class="customer-table extra-gutter">
 		<div class="row table-header">
@@ -88,7 +87,7 @@
 					<i class="fa fa-check-square-o" aria-hidden="true"></i> Vahvista poistot </button>
 			</div>
 			<div class="col-xs-6 right-align">
-				<pagination [count]="count" [size]="size" [perPage]="limiter" (pageChanged)="pageChanged($event)"></pagination>
+            <pagination [count]="count" [size]="size" [perPage]="limiter" (pageChanged)="pageChanged($event)"></pagination>
 			</div>
 		</div>
 	</div>

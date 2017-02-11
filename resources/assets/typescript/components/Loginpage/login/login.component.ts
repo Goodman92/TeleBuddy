@@ -12,18 +12,16 @@ export class LoginComponent {
     constructor(private authService: AuthService, private router: Router) {
     }
 
-    onSubmit(email:HTMLInputElement, password:HTMLInputElement) {
+    onSubmit(email: HTMLInputElement, password: HTMLInputElement) {
         //validointi
-        console.log("Credentials email: " + email.value +  " password: " + password.value);
         this.authService.login(email.value, password.value).subscribe((result) => {
-            console.log("onSubmit success");
             console.log(result);
-            if(result) {
+            if (result) {
                 this.router.navigate(['home']);
                 console.log(result);
             }
         }, (err) => {
-            console.log("errori onSubmit " + err);
+            console.log("errori! " + err);
         });
     }
 

@@ -12,13 +12,13 @@
                     <label for="sel1" (click)="addLine()">Toimiala </label>
                 </div>
                 <div class="col-lg-10 col-xs-12">
-                    <dropdown [collection]="businessLines" (collectionUpdated)="linesUpdated($event)"></dropdown>
+                    <dropdown [collection]="linesStorage.getOriginal()" (collectionUpdated)="linesUpdated($event)"></dropdown>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <span *ngFor="let line of addedLines" class="badge" (click)="removeElement(line, addedLines)">
-                        {{line.name}}
+                    <span *ngFor="let line of linesStorage.getModified()" class="badge" (click)="removeElement(line, linesStorage)">
+                        {{line.getName()}}
                     </span>
                 </div>
             </div>
@@ -29,13 +29,13 @@
                     <label for="sel1">Kaupunki</label>
                 </div>
                 <div class="col-lg-10 col-xs-12">
-                    <dropdown [collection]="cities" (collectionUpdated)="citiesUpdated($event)"></dropdown>
+                    <dropdown [collection]="cityStorage.getOriginal()" (collectionUpdated)="citiesUpdated($event)"></dropdown>
                 </div>
             </div>
             <div class="row">
                 <div class="col-xs-12">
-                    <span *ngFor="let city of addedCities" class="badge" (click)="removeElement(city, addedCities)">
-                        {{city}}
+                    <span *ngFor="let city of cityStorage.getModified()" class="badge" (click)="removeElement(city, cityStorage)">
+                        {{city.getName()}}
                     </span>
                 </div>
             </div>
@@ -82,7 +82,8 @@
                         <td> {{company.businessId}} </td>
                         <td> {{company.companyForm}} </td>
                         <td> {{company.businesslines.name}}</td>
-                        <td> {{company.contact_details.matkapuhelin ? company.contact_details.matkapuhelin : company.contact_details.puhelin }}</td>
+                        <td> {{company.contact_details.matkapuhelin ? company.contact_details.matkapuhelin : company.contact_details.puhelin
+                            }}</td>
                         <td> {{company.city}} </td>
                     </template>
                 </tr>
@@ -146,10 +147,10 @@
                         <div class="col-xs-12">
                             <label for="sel1" class="col-lg-4">Kaupungit</label>
                             <div class="col-lg-8">
-                                <span *ngFor="let city of addedCities" class="badge" (click)="removeElement(city, addedCities)">
+                                <span *ngFor="let city of cityStorage.getModified()" class="badge" (click)="removeElement(city, addedCities)">
                                     {{city}}
                                 </span>
-                                <span *ngIf="addedCities.length == 0"> Satunnainen </span>
+                                <span *ngIf="cityStorage.getModified().length == 0"> Satunnainen </span>
                             </div>
                         </div>
                     </div>
@@ -157,10 +158,10 @@
                         <div class="col-xs-12">
                             <label for="sel1" class="col-lg-4">Toimialat</label>
                             <div class="col-lg-8">
-                                <span *ngFor="let line of addedLines" class="badge" (click)="removeElement(line, addedLines)">
-                                     {{line.name}}
+                                <span *ngFor="let line of linesStorage.getModified()" class="badge" (click)="removeElement(line, addedLines)">
+                                     {{line.getName()}}
                                 </span>
-                                <span *ngIf="addedLines.length == 0"> Satunnainen </span>
+                                <span *ngIf="linesStorage.getModified().length == 0"> Satunnainen </span>
                             </div>
                         </div>
                     </div>

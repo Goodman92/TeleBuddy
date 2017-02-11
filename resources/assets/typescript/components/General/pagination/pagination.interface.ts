@@ -4,6 +4,6 @@ export interface IPaginationConfiguration {
     count: number;
 }
 
-export class PagiModel implements IPaginationConfiguration {
+export class PagiConfiguration implements IPaginationConfiguration {
     constructor(public limiter: number, public size: number, public count: number) { }
 }
